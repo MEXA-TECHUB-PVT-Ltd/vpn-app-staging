@@ -29,6 +29,11 @@ import { useIsFocused } from "@react-navigation/native";
 const { VpnServiceModule, MainActivity } = NativeModules;
 import { Buffer } from "buffer"; // Make sure to install buffer with `npm install buffer`
 import CustomSnackbar from "../components/CustomSnackbar";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const decodeBase64 = (base64String) => {
   const buffer = Buffer.from(base64String, "base64");
@@ -55,6 +60,7 @@ const HomeScreen = ({ route }) => {
   const [isPasswordUpdated, setIsPasswordUpdated] = useState(false);
   const [byteIn, setByteIn] = useState(0);
   const [byteOut, setByteOut] = useState(0);
+  const [ConnectText, setConnectText] = useState('');
   useEffect(() => {
     // Initialize VPNs
     initVpn();
@@ -102,14 +108,31 @@ const HomeScreen = ({ route }) => {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
 
   // Start timer when connected
+  // useEffect(() => {
+  //   if (vpnState === "connected") {
+  //     setIsTimerRunning(true);
+  //   } else {
+  //     setIsTimerRunning(false);
+  //     setConnectionTime(0); // Reset time when disconnected
+  //   }
+  // }, [vpnState]);
+  
   useEffect(() => {
-    if (vpnState === "connected") {
-      setIsTimerRunning(true);
-    } else {
-      setIsTimerRunning(false);
-      setConnectionTime(0); // Reset time when disconnected
-    }
-  }, [vpnState]);
+    const handleVpnState = async () => {
+      if (vpnState === "connected") {
+        setIsTimerRunning(true);
+        if (selectedVpn) {
+          await storeVpnData(selectedVpn); // Store VPN data once when connected
+        }
+      } else {
+        setIsTimerRunning(false);
+        setConnectionTime(0); // Reset time when disconnected
+       // Remove VPN data when disconnected
+      }
+    };
+
+    handleVpnState(); // Execute the logic when vpnState changes
+  }, [vpnState, selectedVpn]); 
 
   useEffect(() => {
     let timer;
@@ -135,8 +158,7 @@ const HomeScreen = ({ route }) => {
     )}:${String(secs).padStart(2, "0")}`;
   };
 
-  console.log("byteIn----", byteIn);
-  console.log("byteOut----", byteOut);
+
 
   // ye final and working modal hai
   // const startVpn = async () => {
@@ -230,13 +252,67 @@ const HomeScreen = ({ route }) => {
       setsnackbarVisible(false);
     }, 3000);
   };
+
+   // Function to store selected VPN in AsyncStorage
+   const storeVpnData = async (vpnData) => {
+    // console.log('data-------', vpnData)
+    try {
+      await AsyncStorage.setItem('selectedVpndata', JSON.stringify(vpnData));
+      console.log('VPN data stored successfully');
+    } catch (error) {
+      console.error('Error storing VPN data', error);
+    }
+  };
+
+  // Function to remove selected VPN from AsyncStorage
+  const removeVpnData = async () => {
+    try {
+      await AsyncStorage.removeItem('selectedVpndata');
+      console.log('VPN data removed successfully');
+    } catch (error) {
+      console.error('Error removing VPN data', error);
+    }
+  };
+  const getStoredVpnData = async () => {
+    try {
+      const storedVpn = await AsyncStorage.getItem('selectedVpndata');
+      if (storedVpn !== null) {
+        // setSelectedVpn(JSON.parse(storedVpn)); // Set the retrieved VPN data
+        console.log('VPN data retrieved successfully');
+      }
+    } catch (error) {
+      console.error('Error retrieving VPN data', error);
+    }
+  };
+  
+  // Call the getStoredVpnData inside useEffect to load stored VPN on component mount
+
+
   useEffect(() => {
     // Check if byteIn has a value and handleUpdatePassword has not been called yet
     if (byteIn.length > 0 && !isPasswordUpdated) {
       handleUpdatePassword();
+      getStoredVpnData();
       setIsPasswordUpdated(true); // Prevent further calls to handleUpdatePassword
     }
   }, [byteIn, isPasswordUpdated]);
+
+  useEffect(() => {
+    // Check if byteIn has a value and handleUpdatePassword has not been called yet
+    if (vpnState === 'disconnected') {
+        setConnectText('Disconnected')
+    } else if (vpnState === 'prepare' || vpnState === 'connecting'  || vpnState === 'noprocess' || vpnState === 'vpn_generate_config'  || vpnState === 'tcp_connect' || vpnState === 'wait' || vpnState === 'auth' ){
+      setConnectText('Connecting')
+    } else if (vpnState === 'get_config'){
+      setConnectText('Poor Connection')
+    } else if (vpnState === 'assign_ip'){
+      setConnectText('trying...')
+    } else {
+      setConnectText('Connected')
+    }
+  }, [vpnState]);
+
+
   // const animatedStyle = {
   //   borderColor: progress.interpolate({
   //     inputRange: [0, 1],
@@ -254,7 +330,7 @@ const HomeScreen = ({ route }) => {
   const animatedOuterCircle = {
     borderColor: progress.interpolate({
       inputRange: [0, 1],
-      outputRange: ["rgba(255, 255, 255, 0.3)", "#FFC700"],
+      outputRange: ["rgba(255, 255, 255, 0.2)", "#DBD6CE"],
     }),
     transform: [
       {
@@ -269,7 +345,7 @@ const HomeScreen = ({ route }) => {
   const animatedInnerCircle = {
     borderColor: progress.interpolate({
       inputRange: [0, 1],
-      outputRange: ["rgba(255, 255, 255, 0.3)", "#FFC700"],
+      outputRange: ["rgba(255, 255, 255, 0.5)", "#6D6C69"],
     }),
   };
   // const [location, setLocation] = useState({
@@ -604,7 +680,7 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
         >
           <View
             style={{
-              paddingLeft: 8,
+              paddingLeft: 6,
             }}
           >
             <CustomHeader
@@ -613,7 +689,7 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
                   // onPress={() => navigation.openDrawer()}
                   onPress={() => navigation.toggleDrawer()}
                   style={{
-                    backgroundColor: "gray",
+                    backgroundColor: "#6D6C69",
                     borderRadius: 30,
                     padding: 8,
                   }}
@@ -750,7 +826,7 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
               />
             </TouchableOpacity>
           </View>
-
+        
           <CustomModal
             visible={modalVisible}
             onClose={closeModal}
@@ -762,6 +838,7 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
         </View>
 
         <View style={{ flex: 1, justifyContent: "flex-end" }}>
+       
           <ImageBackground
             source={Images.Background} // Use your background image
             style={{
@@ -776,6 +853,11 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
             }}
             resizeMode="stretch" // Optional: choose how the image should be resized
           >
+             <View style={{ justifyContent:'center',alignItems:'center', marginTop:hp('12%'), }}>
+             <Text style={{ color: "#FFFFFF",
+    fontSize: 18,
+    fontFamily: "Poppins-Medium",}}>{ConnectText || ''}</Text>
+             </View>
             {isConnected ? (
               <View style={styles.speedContainer}>
                 <View style={styles.speedBox}>
@@ -936,7 +1018,7 @@ const styles = StyleSheet.create({
   speedContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginTop: "35%",
+    marginTop: "10%",
     margin: 4,
   },
   speedBox: {
@@ -956,8 +1038,8 @@ const styles = StyleSheet.create({
 
   connectButtonMain: {
     backgroundColor: "white",
-    width: 130,
-    height: 130,
+    width: 124,
+    height: 124,
     borderRadius: 80,
     alignItems: "center",
     justifyContent: "center",
@@ -966,8 +1048,8 @@ const styles = StyleSheet.create({
   },
   disconnectButtonMain: {
     backgroundColor: "white",
-    width: 130,
-    height: 130,
+    width: 124,
+    height: 124,
     borderRadius: 80,
     alignItems: "center",
     justifyContent: "center",
@@ -1027,8 +1109,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
-    marginTop: 90,
-    marginBottom: -60,
+    marginTop: 60,
+    marginBottom: -50,
     zIndex: 9999,
   },
   powerButton: {
@@ -1039,20 +1121,38 @@ const styles = StyleSheet.create({
 
   outerAnimatedCircle: {
     position: "absolute",
-    width: 180,
-    height: 180,
-    borderRadius: 85,
-    borderWidth: 14,
+    width: wp('54%'), // Adjust the width based on percentage of screen width
+    height: hp('27%'), // Adjust the height based on percentage of screen height
+    borderRadius: wp('26%'), // Border radius half of the width for a perfect circle
+    borderWidth: wp('5%'), // Border width responsive to screen size
     borderColor: "rgba(255, 255, 255, 0.3)", // Outer animated circle color
   },
   innerAnimatedCircle: {
     position: "absolute",
-    width: 152,
-    height: 152,
-    borderRadius: 75,
-    borderWidth: 12,
+    width: wp('44%'), // Adjust width for inner circle
+    height: hp('21.5%'), // Adjust height for inner circle
+    borderRadius: wp('22%'), // Border radius for inner circle
+    borderWidth: wp('5%'), // Border width responsive for inner circle
     borderColor: "rgba(255, 255, 255, 0.3)", // Inner animated circle color
   },
+
+
+  // outerAnimatedCircle: {
+  //   position: "absolute",
+  //   width: 185,
+  //   height: 185,
+  //   borderRadius: 90,
+  //   borderWidth: 14,
+  //   borderColor: "rgba(255, 255, 255, 0.3)", // Outer animated circle color
+  // },
+  // innerAnimatedCircle: {
+  //   position: "absolute",
+  //   width: 152,
+  //   height: 152,
+  //   borderRadius: 75,
+  //   borderWidth: 12,
+  //   borderColor: "rgba(255, 255, 255, 0.3)", // Inner animated circle color
+  // },
 
   progressCircle: {
     position: "absolute",

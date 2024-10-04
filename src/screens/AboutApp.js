@@ -13,12 +13,12 @@ const AboutApp = ({ navigation }) => {
         <View style={styles.container}>
             <CustomHeader
                 leftComponent={
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={{backgroundColor:'gray', borderRadius:30, padding:5}}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={{backgroundColor:'#6D6C69', borderRadius:30, padding:5}}>
                          <Image source={Images.back}/>
                     </TouchableOpacity>
                 }
                 middleComponent={
-                    <Text style={{ color: 'orange', fontSize: 22, fontWeight: '700' }}>About App</Text>
+                    <Text style={{ color: 'orange', fontSize: 22, fontFamily: "Poppins-Bold", }}>About App</Text>
                 }
             />
 
@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
         paddingHorizontal:10
     },
     content: {
-        paddingHorizontal: 20,
-        paddingVertical: 30,
+        paddingHorizontal: 10,
+        paddingVertical: 15,
     },
     settingItem: {
         flexDirection: 'row',
@@ -50,8 +50,9 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     settingText: {
-        color: 'white',
+        color: '#DBD6CE',
         fontSize: 16,
+        fontFamily: "Poppins-Regular",
     },
   
 });

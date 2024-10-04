@@ -399,7 +399,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator , Image} from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CountryFlag from 'react-native-country-flag';
 import Papa from 'papaparse';
 import Images from '../constants/Image';
@@ -453,59 +453,129 @@ const LocationSelectionScreen = ({ navigation }) => {
 
 
 
+    // const getVPNServers = async () => {
+    //     console.log('call');
+    //     setLoading(true);
+    //     try {
+    //         const response = await fetch('http://www.vpngate.net/api/iphone/');
+    //         if (!response.ok) throw new Error('Network response was not ok');
+    //         const data = await response.text();
+    
+    //         const parts = data.split('#');
+    //         if (parts.length < 2) {
+    //             throw new Error('Unexpected data format');
+    //         }
+    
+    //         const csvString = parts[1].split('*').join('');
+    //         Papa.parse(csvString, {
+    //             header: false,
+    //             skipEmptyLines: true,
+    //             complete: async (results) => {
+    //                 const csvList = results.data;
+    //                 const header = csvList[0];
+    //                 const servers = csvList.slice(1).map((row) => {
+    //                     const tempJson = {};
+    //                     for (let j = 0; j < header.length; j++) {
+    //                         tempJson[header[j]] = row[j];
+    //                     }
+    //                     return tempJson;
+    //                 });
+    
+    //                 // Fetch region data for each server based on IP
+    //                 const serversWithRegion = await Promise.all(
+    //                     servers.map(async (server) => {
+    //                         const ip = server.IP; // Extract IP from server
+    //                         if (ip) {
+    //                             // const regionResponse = await fetch(`https://ipinfo.io/${ip}/json`);
+    //                             const regionResponse = await fetch(`https://ipwhois.app/json/${ip}`);
+    //                             const regionData = await regionResponse.json();
+    //                             // Combine the original server data with the region data
+    //                             return { ...server, region: regionData.region };
+    //                         }
+    //                         return server; // Return the server as-is if no IP
+    //                     })
+    //                 );
+    //                 // console.log('SERVER-----------------', serversWithRegion)
+    //                 setFilteredVpnServers(serversWithRegion);
+    //                 setLoading(false); // Hide loading spinner after fetching
+    //             },
+    //         });
+    //     } catch (error) {
+    //         console.error('Error fetching or processing data:', error);
+    //         setLoading(false); // Hide loading spinner on error
+    //     }
+    // };
+    
+
     const getVPNServers = async () => {
-        console.log('call');
-        setLoading(true);
-        try {
-            const response = await fetch('http://www.vpngate.net/api/iphone/');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.text();
-    
-            const parts = data.split('#');
-            if (parts.length < 2) {
-                throw new Error('Unexpected data format');
-            }
-    
-            const csvString = parts[1].split('*').join('');
-            Papa.parse(csvString, {
-                header: false,
-                skipEmptyLines: true,
-                complete: async (results) => {
-                    const csvList = results.data;
-                    const header = csvList[0];
-                    const servers = csvList.slice(1).map((row) => {
-                        const tempJson = {};
-                        for (let j = 0; j < header.length; j++) {
-                            tempJson[header[j]] = row[j];
-                        }
-                        return tempJson;
-                    });
-    
-                    // Fetch region data for each server based on IP
-                    const serversWithRegion = await Promise.all(
-                        servers.map(async (server) => {
-                            const ip = server.IP; // Extract IP from server
-                            if (ip) {
-                                // const regionResponse = await fetch(`https://ipinfo.io/${ip}/json`);
-                                const regionResponse = await fetch(`https://ipwhois.app/json/${ip}`);
-                                const regionData = await regionResponse.json();
-                                // Combine the original server data with the region data
-                                return { ...server, region: regionData.region };
-                            }
-                            return server; // Return the server as-is if no IP
-                        })
-                    );
-                    console.log('SERVER-----------------', serversWithRegion)
-                    setFilteredVpnServers(serversWithRegion);
-                    setLoading(false); // Hide loading spinner after fetching
-                },
-            });
-        } catch (error) {
-            console.error('Error fetching or processing data:', error);
-            setLoading(false); // Hide loading spinner on error
-        }
-    };
-    
+      console.log('call');
+      setLoading(true);
+      
+      try {
+          // Check if VPN servers are already stored in AsyncStorage
+          const cachedData = await AsyncStorage.getItem('vpnServers');
+          if (cachedData) {
+              // Use cached data
+              const parsedServers = JSON.parse(cachedData);
+              setFilteredVpnServers(parsedServers);
+              setLoading(false); // Stop loading as the data is already available
+              return;
+          }
+          console.log('storage data hai????', cachedData)
+          // If no cached data, call the API
+          const response = await fetch('http://www.vpngate.net/api/iphone/');
+          if (!response.ok) throw new Error('Network response was not ok');
+          const data = await response.text();
+  
+          const parts = data.split('#');
+          if (parts.length < 2) {
+              throw new Error('Unexpected data format');
+          }
+  
+          const csvString = parts[1].split('*').join('');
+          Papa.parse(csvString, {
+              header: false,
+              skipEmptyLines: true,
+              complete: async (results) => {
+                  const csvList = results.data;
+                  const header = csvList[0];
+                  const servers = csvList.slice(1).map((row) => {
+                      const tempJson = {};
+                      for (let j = 0; j < header.length; j++) {
+                          tempJson[header[j]] = row[j];
+                      }
+                      return tempJson;
+                  });
+  
+                  // Fetch region data for each server based on IP
+                  const serversWithRegion = await Promise.all(
+                      servers.map(async (server) => {
+                          const ip = server.IP; // Extract IP from server
+                          if (ip) {
+                              const regionResponse = await fetch(`https://ipwhois.app/json/${ip}`);
+                              const regionData = await regionResponse.json();
+                              // Combine the original server data with the region data
+                              return { ...server, region: regionData.region };
+                          }
+                          return server; // Return the server as-is if no IP
+                      })
+                  );
+  
+                  // Store the fetched servers with region data in AsyncStorage
+                  await AsyncStorage.setItem('vpnServers', JSON.stringify(serversWithRegion));
+  
+                  // Set the state with the fetched data
+                  setFilteredVpnServers(serversWithRegion);
+                  setLoading(false); // Hide loading spinner after fetching
+              },
+          });
+      } catch (error) {
+          // console.error('Error fetching or processing data:', error);
+          setLoading(false); // Hide loading spinner on error
+      }
+  };
+
+
     useEffect(() => {
         getVPNServers();
     }, []);

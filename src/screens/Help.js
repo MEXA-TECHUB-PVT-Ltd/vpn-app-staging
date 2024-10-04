@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TextInput,
   Image,
+  Linking
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CustomHeader from "../components/CustomHeader";
@@ -91,9 +92,13 @@ const Help = ({ navigation }) => {
       }
     >
       <Text style={styles.questionText}>{item.question}</Text>
-      <Icon name="keyboard-arrow-right" size={24} color="white" />
+      <Icon name="keyboard-arrow-right" size={24} color="#DBD6CE" />
     </TouchableOpacity>
   );
+
+  const handleEmailLinking = () => {
+    Linking.openURL('mailto:pm@mtechub.com?subject=Support Inquiry&body=Hello, I need help with...');
+  };
 
   return (
     <View style={styles.container}>
@@ -102,7 +107,7 @@ const Help = ({ navigation }) => {
           <TouchableOpacity
             // onPress={() => navigation.openDrawer()}
             onPress={() => navigation.toggleDrawer()} 
-            style={{ backgroundColor: "gray", borderRadius: 30, padding: 8 }}
+            style={{ backgroundColor: "#6D6C69", borderRadius: 30, padding: 8 }}
           >
             <Image source={Images.DrawerMenu} />
           </TouchableOpacity>
@@ -111,7 +116,7 @@ const Help = ({ navigation }) => {
       />
 
       <View style={styles.searchContainer}>
-        <Icon name="search" size={24} color="white" style={styles.searchIcon} />
+      <Image source={Images.Search} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search"
@@ -131,9 +136,9 @@ const Help = ({ navigation }) => {
 
       <TouchableOpacity
         style={styles.contactButton}
-        onPress={() => alert("Contact Support")}
+        onPress={() => handleEmailLinking()}
       >
-        <Icon name="mail-outline" size={24} color="white" />
+       <Image source={Images.Mail} />
       </TouchableOpacity>
     </View>
   );
@@ -143,19 +148,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1c161b",
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
     paddingVertical: 10,
   },
   headerTitle: {
     color: "orange",
     fontSize: 25,
-    fontWeight: "bold",
+    fontFamily: "Poppins-Bold",
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#333",
-    marginHorizontal: 10,
+    marginHorizontal: 6,
     marginVertical: 10,
     borderRadius: 10,
     paddingHorizontal: 10,
@@ -165,7 +170,8 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    color: "white",
+    color: "#DBD6CE",
+    fontFamily: "Poppins-Medium",
   },
   listContainer: {
     paddingHorizontal: 10,
@@ -180,19 +186,20 @@ const styles = StyleSheet.create({
     borderBottomColor: "#333",
   },
   questionText: {
-    color: "white",
+    color: "#DBD6CE",
     fontSize: 16,
     flex: 1,
+    fontFamily: "Poppins-Medium",
   },
   contactButton: {
     position: "absolute",
     bottom: 20,
-    right: 20,
-    backgroundColor: "orange",
-    padding: 15,
-    borderRadius: 50,
-    justifyContent: "center",
-    alignItems: "center",
+    right: 15,
+    // backgroundColor: "orange",
+    // padding: 15,
+    // borderRadius: 50,
+    // justifyContent: "center",
+    // alignItems: "center",
   },
 });
 

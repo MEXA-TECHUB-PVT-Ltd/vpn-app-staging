@@ -231,7 +231,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
 
       <View style={styles.bottomContainer}>
         <Button
-          title="Send OTP"
+          title="Send"
           onPress={handleSendOTP}
           disabled={!email}
           loading={loading}

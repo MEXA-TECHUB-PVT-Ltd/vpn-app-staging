@@ -384,7 +384,7 @@ const SignupScreen = ({ navigation }) => {
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         message = "Google Play Services is not available.";
       } else {
-        message = `Error: ${error.message}`;
+        message = `Error: you have cancle the Google auth`;
       }
   
       setGoogleMessageData(message);
@@ -404,7 +404,7 @@ const SignupScreen = ({ navigation }) => {
           value={fullName}
           onChangeText={setFullName}
           theme={{
-            colors: { primary: "orange", placeholder: "#888", text: "white" },
+            colors: { primary: "orange", placeholder: "#888", text: "#DBD6CE", fontFamily: "Poppins-Regular", },
           }}
           style={styles.input}
           outlineColor="#888"
@@ -419,7 +419,7 @@ const SignupScreen = ({ navigation }) => {
           onChangeText={setEmail}
           keyboardType="email-address"
           theme={{
-            colors: { primary: "orange", placeholder: "#888", text: "white" },
+            colors: { primary: "orange", placeholder: "#888", text: "#DBD6CE", fontFamily: "Poppins-Regular", },
           }}
           style={styles.input}
           outlineColor="#888"
@@ -445,7 +445,7 @@ const SignupScreen = ({ navigation }) => {
             />
           }
           theme={{
-            colors: { primary: "orange", placeholder: "#888", text: "white" },
+            colors: { primary: "orange", placeholder: "#888", text: "#DBD6CE" ,fontFamily: "Poppins-Regular",},
           }}
           style={styles.input}
           outlineColor="#888"
@@ -471,7 +471,7 @@ const SignupScreen = ({ navigation }) => {
             />
           }
           theme={{
-            colors: { primary: "orange", placeholder: "#888", text: "white" },
+            colors: { primary: "orange", placeholder: "#888", text: "#DBD6CE" ,fontFamily: "Poppins-Regular", },
           }}
           style={styles.input}
           outlineColor="#888"
@@ -562,8 +562,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    color: "orange",
-    fontWeight: "bold",
+    color: "#FE8C00",
+    fontFamily: "Poppins-Bold",
     marginBottom: 20,
     textAlign: "center",
   },
@@ -588,10 +588,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
   },
-  linkText: {
-    color: "orange",
-    fontWeight: "bold",
-  },
+
   socialLoginContainer: {
     marginVertical: 20,
     alignItems: "center",
@@ -612,20 +609,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 20,
+    fontFamily: "Poppins-Medium",
   },
   signInText: {
-    color: "white",
+    color: "#DBD6CE",
     textAlign: "center",
   },
   linkText: {
-    color: "orange", // Or whatever color you prefer for the link
+    color: "#FF9900", // Or whatever color you prefer for the link
     textAlign: "center",
-    fontWeight: "bold",
+    fontFamily: "Poppins-SemiBold",
+    paddingTop:3
   },
   errorText: {
     color: "red",
     fontSize: 12,
     marginTop: -4,
+    fontFamily: "Poppins-Regular",
   },
 });
 

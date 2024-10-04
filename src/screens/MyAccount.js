@@ -6,9 +6,13 @@ import {
   StyleSheet,
   TextInput,
   Image,
+  Alert
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
-
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
 import RBSheet from "react-native-raw-bottom-sheet";
 import CustomHeader from "../components/CustomHeader";
 import Button from "../components/Button";
@@ -20,8 +24,10 @@ import { useIsFocused } from "@react-navigation/native";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 import CustomSnackbar from "../components/CustomSnackbar";
+import Clipboard from '@react-native-clipboard/clipboard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const MyAccount = () => {
+const MyAccount = ({ myId = "AH_282912", myIp = "116.108.85.23" }) => {
   const navigation = useNavigation();
   const [fullName, setFullName] = useState("Thomas K. Wilson");
   const [email, setEmail] = useState("thomas.abc.inc@gmail.com");
@@ -32,65 +38,77 @@ const MyAccount = () => {
   const [FillFieldData, setFillFieldData] = useState("");
   const [shouldUpdate, setShouldUpdate] = useState(false);
   const [snackbarVisible, setsnackbarVisible] = useState(false);
+  const [snackbarVisible1, setsnackbarVisible1] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [copiedValue, setCopiedValue] = useState(''); 
+  const [vpnData, setVpnData] = useState(null);
+
+  useEffect(() => {
+    if (userDetail) {
+      setFullName(userDetail?.name);
+    }
+  }, [userDetail]);
 
 
-
-useEffect(() => {
-  if (userDetail) {
-    setFullName(userDetail?.name);
-  }
-}, [userDetail]);
-
-useEffect(() => {
-  const fetchUserData = async () => {
+  const getStoredVpnData = async () => {
     try {
-      const user = auth().currentUser;
-      // console.log('current user', user)
-      if (user) {
-        const userDoc = await firestore()
-          .collection("users")
-          .doc(user.uid)
-          .get();
-        if (userDoc.exists) {
-          setUserDetail(userDoc.data());
-        }
+      const storedVpn = await AsyncStorage.getItem('selectedVpndata');
+      if (storedVpn !== null) {
+        setVpnData(JSON.parse(storedVpn) || ''); // Set the retrieved VPN data
+      
+        console.log('VPN data retrieved successfully',storedVpn);
       }
     } catch (error) {
-      console.error("Error fetching user data:", error);
-    } finally {
-      setLoading(false);
+      console.error('Error retrieving VPN data', error);
     }
   };
-
-  fetchUserData();
-  // Reset shouldUpdate after fetching user details
-  if (shouldUpdate) {
-    setShouldUpdate(false);
-  }
-}, [isFocused, shouldUpdate]);
-
-console.log("USER DATA-----------", userDetail);
+  
+  // Call the getStoredVpnData inside useEffect to load stored VPN on component mount
+  useEffect(() => {
+    getStoredVpnData(); // Retrieve VPN data when component mounts
+  }, [userDetail]); 
 
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const user = auth().currentUser;
+        // console.log('current user', user)
+        if (user) {
+          const userDoc = await firestore()
+            .collection("users")
+            .doc(user.uid)
+            .get();
+          if (userDoc.exists) {
+            setUserDetail(userDoc.data());
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchUserData();
+    // Reset shouldUpdate after fetching user details
+    if (shouldUpdate) {
+      setShouldUpdate(false);
+    }
+  }, [isFocused, shouldUpdate]);
 
+  console.log("USER DATA-----------", userDetail);
 
-
-
-
-
-
-
-const dismissSnackbar = () => {
-  setsnackbarVisible(false);
-};
-const handleUpdatePassword = async () => {
-  setsnackbarVisible(true);
-  setTimeout(() => {
+  const dismissSnackbar = () => {
     setsnackbarVisible(false);
-  }, 3000);
-};
+  };
+  const handleUpdatePassword = async () => {
+    setsnackbarVisible(true);
+    setTimeout(() => {
+      setsnackbarVisible(false);
+    }, 3000);
+  };
+
   const handleSave = async () => {
     // Retrieve the current user UID
     const user = auth().currentUser;
@@ -121,10 +139,6 @@ const handleUpdatePassword = async () => {
     }
   };
 
- 
-
-
-
   const openLogoutModal = () => {
     setModalVisible(true);
   };
@@ -144,6 +158,23 @@ const handleUpdatePassword = async () => {
     }
   };
 
+  const copyToClipboard = (value, label) => {
+    Clipboard.setString(value); // Set the value to the clipboard
+    console.log('value copy ', value, label)
+    // Alert.alert(`${label} copied`, `${value} has been copied to clipboard`);
+    setCopiedValue(value);
+    handleCopy();
+   
+  };
+  const dismissSnackbar1 = () => {
+    setsnackbarVisible1(false);
+  };
+  const handleCopy = async () => {
+    setsnackbarVisible1(true);
+    setTimeout(() => {
+      setsnackbarVisible1(false);
+    }, 3000);
+  };
   return (
     <View style={styles.container}>
       <CustomHeader
@@ -151,7 +182,7 @@ const handleUpdatePassword = async () => {
           <TouchableOpacity
             // onPress={() => navigation.openDrawer()}
             onPress={() => navigation.toggleDrawer()}
-            style={{ backgroundColor: "gray", borderRadius: 30, padding: 8 }}
+            style={{ backgroundColor: "#6D6C69", borderRadius: 30, padding: 8 }}
           >
             <Image source={Images.DrawerMenu} />
           </TouchableOpacity>
@@ -178,15 +209,14 @@ const handleUpdatePassword = async () => {
 
       <View style={styles.accountUserContainer}>
         <View style={styles.userInfoContainer}>
-          <View style={{width:'90%',}}>
+          <View style={{ width: "90%" }}>
             <Text style={styles.userName}>{userDetail?.name}</Text>
             <Text style={styles.userEmail}>{userDetail?.email}</Text>
           </View>
 
-
           <TouchableOpacity
             onPress={() => refRBSheet.current.open()}
-            style={{ marginLeft: 6, }}
+            style={{ marginLeft: 6 }}
           >
             <Icon name="edit" size={30} color="white" />
           </TouchableOpacity>
@@ -194,12 +224,47 @@ const handleUpdatePassword = async () => {
       </View>
 
       <View style={styles.accountInfoContainer}>
+      {/* <View style={styles.infoRow}>
+        <Text style={styles.detailText}>My ID :</Text>
+        <Text style={styles.detailValue}>{myId}</Text>
+        <TouchableOpacity onPress={() => copyToClipboard(myId, "ID")}>
+        <Image source={Images.Copy} />
+     
+        </TouchableOpacity>
+      </View> */}
+      {vpnData ? (
+        <>
+          <View style={styles.infoRow}>
+        <Text style={styles.detailText}>My IP :</Text>
+        <Text style={styles.detailValue}>{vpnData.IP}</Text>
+        <TouchableOpacity onPress={() => copyToClipboard(vpnData.IP, "IP")}>
+        <Image source={Images.Copy} />
+       
+        </TouchableOpacity>
+      </View>
+        </>
+      ) : (
+        <>
+          <View style={styles.infoRow}>
+        <Text style={styles.detailText}>My IP :</Text>
+        
+      </View>
+        </>
+      )}
+     
+      <View style={styles.infoRow}>
+        <Text style={styles.detailText}>Type :</Text>
+        <Text style={styles.premiumText}>PREMIUM</Text>
+        <Text style={styles.daysLeft}>240 days left</Text>
+      </View>
+    </View>
+      {/* <View style={styles.accountInfoContainer}>
         <View style={styles.accountDetails}>
-          <Text  style={styles.detailText}>My ID: AH_289212</Text>
+          <Text style={styles.detailText}>My ID: AH_289212</Text>
           <Text style={styles.detailText}>My IP: 161.108.85.23</Text>
           <Text style={styles.detailText}>Type: FREE</Text>
         </View>
-      </View>
+      </View> */}
 
       <View
         style={{
@@ -212,13 +277,13 @@ const handleUpdatePassword = async () => {
       >
         <TouchableOpacity
           style={styles.premiumButton}
-          onPress={() => alert("Go to Premium")}
+          onPress={() => navigation.navigate('GetPremiumScreen')}
         >
-          <Icon name="star" size={20} color="white" />
-          <Text style={styles.premiumText}>Go to Premium</Text>
+           <Image source={Images.Vector} />
+          <Text style={styles.GetpremiumText}>Go to Premium</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.premiumButton, { backgroundColor: "gray" }]}
+          style={[styles.premiumButton, { backgroundColor: "#FFFFFF33" }]}
           onPress={openLogoutModal}
         >
           <Image source={Images.Logout} />
@@ -226,11 +291,17 @@ const handleUpdatePassword = async () => {
         </TouchableOpacity>
       </View>
       <CustomSnackbar
-message='Success'
-messageDescription='Profile updated successfully'
-onDismiss={dismissSnackbar} // Make sure this function is defined
-visible={snackbarVisible}
-/>
+        message="Success"
+        messageDescription="Profile updated successfully"
+        onDismiss={dismissSnackbar} // Make sure this function is defined
+        visible={snackbarVisible}
+      />
+      <CustomSnackbar
+        message="Success" 
+        messageDescription={`${copiedValue} has been copied to clipboard`}
+        onDismiss={dismissSnackbar1} // Make sure this function is defined
+        visible={snackbarVisible1}
+      />
       <RBSheet
         ref={refRBSheet}
         height={300}
@@ -288,41 +359,97 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: "orange",
     fontSize: 25,
-    fontWeight: "bold",
+    fontFamily: "Poppins-Bold",
   },
   accountUserContainer: {
     backgroundColor: "orange",
     borderRadius: 10,
-    padding: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
     marginVertical: 20,
+    height:hp('12%')
   },
+  // accountInfoContainer: {
+  //   backgroundColor: "#333",
+  //   borderRadius: 10,
+  //   padding: 20,
+  //   marginVertical: 20,
+  // },
+
   accountInfoContainer: {
-    backgroundColor: "#333",
+    backgroundColor: '#333333',
     borderRadius: 10,
     padding: 20,
     marginVertical: 20,
   },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    
+  },
+  detailText: {
+    color: '#DBD6CE',
+    fontSize: 14,
+    marginRight: 10,
+    fontFamily: "Poppins-Medium",
+  },
+  detailValue: {
+    color: '#DBD6CE',
+    fontSize: 14,
+    flex: 1, 
+    fontFamily: "Poppins-Regular",
+  },
+  premiumText: {
+    color: '#FFC107', // Premium yellow color
+    fontSize: 14,
+    fontFamily: "Poppins-Bold",
+    marginRight: 10,
+    paddingTop:4
+  },
+  daysLeft: {
+    color: '#DBD6CE',
+    fontSize: 14,
+  },
+  copyIcon: {
+    width: 20,  // Set the width of the copy icon
+    height: 20, // Set the height of the copy icon
+  },
+
+
+
+
+
+
+
+
+
+
+
+
   userInfoContainer: {
     marginBottom: 1,
     flexDirection: "row",
   },
   userName: {
-    color: "white",
+    color: "#FFFFFF",
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: "Poppins-Bold",
   },
   userEmail: {
-    color: "white",
+    color: "#FFFFFF",
     fontSize: 16,
+    fontFamily: "Poppins-Medium",
   },
   accountDetails: {
     marginTop: 10,
   },
-  detailText: {
-    color: "white",
-    fontSize: 16,
-    marginBottom: 10,
-  },
+  // detailText: {
+  //   color: "#FFFFFF",
+  //   fontSize: 16,
+  //   marginBottom: 10,
+  //   fontFamily: "Poppins-Regular",
+  // },
 
   signOutButton: {
     backgroundColor: "#ff4d4d",
@@ -367,22 +494,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 15,
+    paddingVertical: 10,
     borderRadius: 30,
     // marginHorizontal: 10,
     marginBottom: 30,
   },
-  premiumText: {
-    color: "white",
+  GetpremiumText: {
+    color: "#FFFFFF",
     marginLeft: 10,
     fontSize: 16,
-    fontWeight: "bold",
+    paddingTop:4,
+    fontFamily: "Poppins-Bold",
   },
   logoutText: {
     color: "#FF6347",
     marginLeft: 10,
     fontSize: 16,
-    fontWeight: "600",
+    paddingTop:3,
+    fontFamily: "Poppins-Bold",
   },
   errorText: {
     color: "red",

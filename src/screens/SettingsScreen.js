@@ -25,13 +25,13 @@ const SettingsScreen = ({ navigation }) => {
           <TouchableOpacity
             // onPress={() => navigation.openDrawer()}
             onPress={() => navigation.toggleDrawer()} 
-            style={{ backgroundColor: "gray", borderRadius: 30, padding: 8 }}
+            style={{ backgroundColor: "#6D6C69", borderRadius: 30, padding: 8 }}
           >
              <Image source={Images.DrawerMenu} />
           </TouchableOpacity>
         }
         middleComponent={
-          <Text style={{ color: "orange", fontSize: 30, fontWeight: "700" }}>
+          <Text style={{ color: "orange", fontSize: 30, fontFamily: "Poppins-Bold", }}>
             Setting
           </Text>
         }
@@ -53,7 +53,7 @@ const SettingsScreen = ({ navigation }) => {
           onPress={() => navigation.navigate("TermServices")}
         >
           <Text style={styles.settingText}>Term of Service</Text>
-          <Icon name="keyboard-arrow-right" size={24} color="white" />
+          <Icon name="keyboard-arrow-right" size={24} color="#DBD6CE" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -61,7 +61,7 @@ const SettingsScreen = ({ navigation }) => {
           onPress={() => navigation.navigate("PrivacyPolicy")}
         >
           <Text style={styles.settingText}>Privacy Policy</Text>
-          <Icon name="keyboard-arrow-right" size={24} color="white" />
+          <Icon name="keyboard-arrow-right" size={24} color="#DBD6CE" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -69,7 +69,7 @@ const SettingsScreen = ({ navigation }) => {
           onPress={() => navigation.navigate("AboutApp")}
         >
           <Text style={styles.settingText}>About App</Text>
-          <Icon name="keyboard-arrow-right" size={24} color="white" />
+          <Icon name="keyboard-arrow-right" size={24} color="#DBD6CE" />
         </TouchableOpacity>
 
         {/* <View style={styles.dottedBox}>
@@ -92,12 +92,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#1c161b",
-    paddingVertical: 10,
-    paddingHorizontal: 10,
+    paddingVertical:15,
+    paddingHorizontal:15
   },
   content: {
-    paddingHorizontal: 20,
-    paddingVertical: 30,
+    paddingHorizontal: 5,
+    paddingVertical: 20,
   },
   settingItem: {
     flexDirection: "row",
@@ -106,8 +106,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   settingText: {
-    color: "white",
+    color: "#DBD6CE",
     fontSize: 16,
+    fontFamily: "Poppins-Medium", 
   },
   dottedBox: {
     borderWidth: 1,
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
   },
   changePasswordButton: {
     backgroundColor: "orange",
-    padding: 15,
+    padding: 10,
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
   changePasswordText: {
     color: "white",
     fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: "Poppins-Bold",
   },
 });
 

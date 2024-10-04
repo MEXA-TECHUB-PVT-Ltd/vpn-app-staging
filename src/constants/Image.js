@@ -25,6 +25,9 @@ const Images = {
     Search: require("../assets/images/Search.png"),
     QuestionCircle: require("../assets/images/QuestionCircle.png"),
     CrownLine: require("../assets/images/CrownLine.png"),
+    Mail: require("../assets/images/Mail.png"),
+    Vector: require("../assets/images/Vector.png"),
+    Copy: require("../assets/images/Copy.png"),
     // worldMapBkg: require("../assets/images/world-map-bkg.png"),
 
 };

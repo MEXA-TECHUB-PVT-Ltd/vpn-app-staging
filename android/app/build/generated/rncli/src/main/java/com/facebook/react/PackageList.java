@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import com.oblador.vectoricons.VectorIconsPackage;
 // @react-native-async-storage/async-storage
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
+// @react-native-clipboard/clipboard
+import com.reactnativecommunity.clipboard.ClipboardPackage;
 // @react-native-community/blur
 import com.reactnativecommunity.blurview.BlurViewPackage;
 // @react-native-community/checkbox
@@ -134,6 +136,7 @@ public class PackageList {
       new MainReactPackage(mConfig),
       new VectorIconsPackage(),
       new AsyncStoragePackage(),
+      new ClipboardPackage(),
       new BlurViewPackage(),
       new ReactCheckBoxPackage(),
       new RNDateTimePickerPackage(),

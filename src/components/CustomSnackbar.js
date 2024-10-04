@@ -6,7 +6,6 @@ import {
   Animated,
   TouchableOpacity,
 } from "react-native";
-import { heightPercentageToDP } from "react-native-responsive-screen";
 
 // import CheckSnackBar from "./svg/CheckSnackBar.svg";
 

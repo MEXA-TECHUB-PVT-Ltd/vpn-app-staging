@@ -9,33 +9,45 @@ import {
 } from "react-native";
 import CustomHeader from "../components/CustomHeader";
 import Images from "../constants/Image";
+import CustomSnackbar from "../components/CustomSnackbar";
 
 const GetPremiumScreen = ({ navigation }) => {
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [snackbarVisible, setsnackbarVisible] = useState(false);
 
   const subscriptionPlans = [
     { id: 1, period: "1 Month", price: "$1.99" },
     { id: 2, period: "6 Month", price: "$9.99" },
     { id: 3, period: "1 Year", price: "$16.99" },
-    { id: 4, period: "2 Year", price: "$31.99" },
+    { id: 4, period: "2 Years", price: "$31.99" },
   ];
 
   const handleGetPremioum = (selectedPlan) => {
     console.log('selectedPlan', selectedPlan)
+    handleUpdatePassword();
    
   };
-  const handleSelectPlan = (id) => {
-    console.log('id selected', id)
-    setSelectedPlan(id);
+  const handleSelectPlan = (period) => {
+    console.log('id selected', period)
+    setSelectedPlan(period);
   };
 
+  const dismissSnackbar = () => {
+    setsnackbarVisible(false);
+  };
+  const handleUpdatePassword = async () => {
+    setsnackbarVisible(true);
+    setTimeout(() => {
+      setsnackbarVisible(false);
+    }, 3000);
+  };
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={[
         styles.planContainer,
-        selectedPlan === item.id && styles.selectedPlanContainer,
+        selectedPlan === item.period && styles.selectedPlanContainer,
       ]}
-      onPress={() => handleSelectPlan(item.id)}
+      onPress={() => handleSelectPlan(item.period)}
     >
       <View style={styles.planDetails}>
         <Text style={styles.periodText}>{item.period}</Text>
@@ -94,6 +106,12 @@ const GetPremiumScreen = ({ navigation }) => {
       >
         <Text style={styles.buttonText}>Get Premium and Enjoying</Text>
       </TouchableOpacity>
+      <CustomSnackbar
+          message="Success"
+          messageDescription={`Thanks, You have selected ${selectedPlan} Plan`}
+          onDismiss={dismissSnackbar} // Make sure this function is defined
+          visible={snackbarVisible}
+        />
     </View>
   );
 };
@@ -109,13 +127,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginVertical: 20,
-    color: "#fff",
+    color: "#FFFFFF",
   },
   subHeaderText: {
     fontSize: 16,
     textAlign: "center",
     marginBottom: 30,
-    color: "#fff",
+    color: "#FFFFFF",
+    fontFamily: "Poppins-Medium",
   },
   list: {
     flexGrow: 0,
@@ -175,7 +194,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: "Poppins-Bold",
     color: "#fff",
   },
 });

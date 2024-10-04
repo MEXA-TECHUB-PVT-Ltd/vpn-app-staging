@@ -1,12 +1,45 @@
-import React from "react";
+import React,{useEffect,useState} from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Animated from "react-native-reanimated";
 import Images from "../constants/Image";
+import { useIsFocused } from "@react-navigation/native";
+import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 
 const CustomDrawerContent = (props) => {
+  const isFocused = useIsFocused();
+  const [userDetail, setUserDetail] = useState(null);
+  const [activeItem, setActiveItem] = useState('MainStackScreen');
+  const handlePress = (itemName) => {
+    setActiveItem(itemName);
+    props.navigation.navigate(itemName);
+  };
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const user = auth().currentUser;
+        if (user) {
+          const userDoc = await firestore()
+            .collection("users")
+            .doc(user.uid)
+            .get();
+          if (userDoc.exists) {
+            setUserDetail(userDoc.data());
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+
+  }, [isFocused]);
+
+
   return (
     <DrawerContentScrollView
       {...props}
@@ -25,7 +58,7 @@ const CustomDrawerContent = (props) => {
       {/* User's Name */}
       <View style={styles.userInfoSection}>
         <Text style={styles.greeting}>Hello,</Text>
-        <Text style={styles.username}>Thomas K. Wilson</Text>
+        <Text style={styles.username}>{userDetail?.name || userDetail?.displayName|| '' } </Text>
       </View>
 
       {/* Drawer Items */}
@@ -39,8 +72,13 @@ const CustomDrawerContent = (props) => {
               resizeMode="contain"
             />
           )}
-          onPress={() => props.navigation.navigate("MainStackScreen")}
+          onPress={() => handlePress("MainStackScreen")}
+          // onPress={() => props.navigation.navigate("MainStackScreen")}
           labelStyle={styles.drawerLabel}
+          style={[
+            styles.drawerItem,
+            activeItem === "MainStackScreen" && styles.activeDrawerItem,
+          ]}
         />
 
         <DrawerItem
@@ -52,8 +90,13 @@ const CustomDrawerContent = (props) => {
               resizeMode="contain"
             />
           )}
-          onPress={() => props.navigation.navigate("MyAccount")}
+          onPress={() => handlePress("MyAccount")}
+          // onPress={() => props.navigation.navigate("MyAccount")}
           labelStyle={styles.drawerLabel}
+          style={[
+            styles.drawerItem,
+            activeItem === "MyAccount" && styles.activeDrawerItem,
+          ]}
         />
         <DrawerItem
           label="Setting"
@@ -64,8 +107,13 @@ const CustomDrawerContent = (props) => {
               resizeMode="contain"
             />
           )}
-          onPress={() => props.navigation.navigate("SettingStackNavigator")}
+          onPress={() => handlePress("SettingStackNavigator")}
+          // onPress={() => props.navigation.navigate("SettingStackNavigator")}
           labelStyle={styles.drawerLabel}
+          style={[
+            styles.drawerItem,
+            activeItem === "SettingStackNavigator" && styles.activeDrawerItem,
+          ]}
         />
         <DrawerItem
           label="Help"
@@ -76,8 +124,13 @@ const CustomDrawerContent = (props) => {
             resizeMode="contain"
           />
           )}
-          onPress={() => props.navigation.navigate("Help")}
+          onPress={() => handlePress("Help")}
+          // onPress={() => props.navigation.navigate("Help")}
           labelStyle={styles.drawerLabel}
+          style={[
+            styles.drawerItem,
+            activeItem === "Help" && styles.activeDrawerItem,
+          ]}
         />
       </View>
 
@@ -85,7 +138,7 @@ const CustomDrawerContent = (props) => {
       <View style={styles.premiumButtonSection}>
         <TouchableOpacity
           style={styles.premiumButton}
-          onPress={() => alert("Go to Premium clicked!")}
+          onPress={() => props.navigation.navigate('GetPremiumScreen')}
         > 
           <Image
               source={Images.CrownLine} // Path to your image
@@ -100,8 +153,9 @@ const CustomDrawerContent = (props) => {
 
 const styles = StyleSheet.create({
   closeIconContainer: {
-    marginTop: 50,
+    // marginTop: 20,
     marginLeft: 20,
+    marginBottom:60
   },
   userInfoSection: {
     paddingHorizontal: 20,
@@ -110,12 +164,13 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 18,
-    color: "white",
+    color: "#FFFFFF",
+    fontFamily: "Poppins-SemiBold",
   },
   username: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
+    fontFamily: "Poppins-Bold",
+    color: "#FFFFFF",
   },
   drawerItemsSection: {
     flex: 1,
@@ -123,8 +178,20 @@ const styles = StyleSheet.create({
   },
   drawerLabel: {
     fontSize: 16,
-    color: "white",
+    color: "#FFFFFF",
+    paddingTop:2,
+    fontFamily: "Poppins-SemiBold",
   },
+  drawerItem: {
+    backgroundColor: "transparent", // Default background
+    borderLeftWidth: 0, // Default border
+  },
+  activeDrawerItem: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)", // Light white background for active item
+    borderLeftWidth: 4, // Add a white left border for active item
+    borderLeftColor: "#FFFFFF",
+  },
+
   premiumButtonSection: {
     paddingHorizontal: 20,
     paddingBottom: 30,
@@ -133,7 +200,7 @@ const styles = StyleSheet.create({
   premiumButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: "#FFFFFF",
     padding: 12,
     borderRadius: 35,
   },

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Button from "../components/Button";
@@ -171,17 +171,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#1c161b",
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     color: "orange",
-    fontWeight: "bold",
+    fontFamily: "Poppins-Bold",
     marginBottom: 10,
     textAlign: "center",
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#888",
     marginBottom: 30,
     textAlign: "center",
+    fontFamily: "Poppins-Medium",
   },
   inputContainer: {
     flexDirection: "row",

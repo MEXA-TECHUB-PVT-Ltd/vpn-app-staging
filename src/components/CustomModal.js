@@ -61,13 +61,15 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 20,
-        fontWeight: 'bold',
+        fontFamily: "Poppins-SemiBold",
+        
         color: 'white',
         marginBottom: 10,
         textAlign: 'center',
     },
     description: {
         fontSize: 16,
+        fontFamily: "Poppins-SemiBold",
         color: '#ccc',
         textAlign: 'center',
         marginBottom: 20,
@@ -92,10 +94,12 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: 10,
         alignItems: 'center',
+        fontFamily: "Poppins-SemiBold",
     },
     buttonText: {
         color: 'white',
         fontSize: 16,
+        fontFamily: "Poppins-SemiBold",
     },
 });
 

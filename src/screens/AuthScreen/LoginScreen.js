@@ -217,6 +217,8 @@ const LoginScreen = ({ navigation }) => {
     fetchDeviceId();
   }, []); // Dependency array
 
+
+
   useEffect(()=>{
     console.log('test')
     GoogleSignin.configure({
@@ -224,6 +226,34 @@ const LoginScreen = ({ navigation }) => {
         "69377085199-1o9q6cmm27hb6l0810oujabd10mepn38.apps.googleusercontent.com",
     }); 
   },[isFocused])
+
+
+
+  const [usersData, setUserData] = useState(null);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userSnapshot = await firestore()
+          .collection("users")
+          .where("email", "==", email)
+          .get();
+
+        if (userSnapshot.empty) {
+          throw new Error("No user found with this email.");
+        }
+
+        let fetchedUserData = null;
+        userSnapshot.forEach((doc) => {
+          fetchedUserData = { id: doc.id, ...doc.data() };
+        });
+
+        setUserData(fetchedUserData);
+      } catch (error) {}
+    };
+
+    fetchUserData();
+  }, [email]);
+
 
   // const googlefunction = () =>{
   //   console.log('call')
@@ -282,13 +312,20 @@ const LoginScreen = ({ navigation }) => {
       setGoogleMessageData('')
       console.log('User logged in:', userCredential.user);
 
+      // Update the password in Firestore (ensure usersData.id is available)
+      // await firestore().collection("users").doc(usersData.id).update({
+      //   password: password,
+      // });
 
-       // Wait for Snackbar to show, then navigate
-      //  setTimeout(() => {
-      //   if (isMounted) {
-      //     setIsMounted(false);
-      //   }
-      // }, 3000);
+    if (usersData?.id) {
+      await firestore().collection("users").doc(usersData.id).update({
+        password: password, // Updating the password field in Firestore
+      });
+      console.log('Password updated successfully in Firestore');
+    } else {
+      console.error('User ID not available to update Firestore');
+    }
+
     } catch (error) {
       console.log('Login error: ', error);
 
@@ -324,164 +361,6 @@ const LoginScreen = ({ navigation }) => {
   };
 
 
-  // const onGoogleButtonPress = async () => {
-  //   setLoading(true);
-  //   try {
-  //     // Sign out of any previous Google account
-  //     await GoogleSignin.signOut();
-
-  //     // Check if your device supports Google Play
-  //     await GoogleSignin.hasPlayServices({
-  //       showPlayServicesUpdateDialog: true,
-  //     });
-
-  //     // Get the user's ID token
-  //     const { idToken } = await GoogleSignin.signIn(); // This should show the account picker
-
-
-  //     // Create a Google credential with the token
-  //     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
-  //     // Sign-in the user with the credential
-  //     const userCredential = await auth().signInWithCredential(
-  //       googleCredential
-  //     );
-  //     console.log("You have successfully signed up with Google!", userCredential);
-  //     // Get user details
-  //     setErrorMessage('')
-  //     const userDetail = userCredential.user.toJSON();
-  //     const userId = userDetail.uid;
-  //     const email = userDetail.email;
-  //     const fullName = userDetail.displayName;
-
-  //     // Check if user already exists in Firestore
-  //     const userRef = firestore().collection("users").doc(userId);
-  //     const userDoc = await userRef.get();
-
-  //     if (!userDoc.exists) {
-  //       // If user doesn't exist, create a new record
-  //       await userRef.set({
-  //         name: fullName || "",
-  //         email: email,
-  //         password: "", // Google sign-in does not provide the password, so this will be empty
-  //         deviceId: deviceId,
-  //         image: "",
-  //         purchasedServersList: [],
-  //       });
-
-  //       console.log("You have successfully signed up with Google!");
-  //       setGoogleMessageData("You have successfully signed up with Google!");
-  //     } else {
-  //       // If user exists, update existing record or perform any needed action
-  //       // You can also update the user record here if needed
-  //       console.log("You have successfully logged in with Google!");
-  //       setGoogleMessageData("You have successfully logged in with Google!");
-  //       // Success message
-  //     }
-  //   } catch (error) {
-  //     console.log("Login error: ", error); // Log the entire error object for debugging
-  //     let message = "An error occurred. Please try again.";
-
-  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-  //       message = "Sign-in was cancelled by the user.";
-  //     } else if (error.code === statusCodes.IN_PROGRESS) {
-  //       message = "Sign-in is in progress.";
-  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-  //       message = "Google Play Services is not available.";
-  //     } else if (error.code) {
-  //       message = `Error code: ${error.code}. Message: ${error.message}`;
-  //     }
-
-  //     console.log("error.code", message);
-  //     setGoogleMessageData(message);
-  //     setErrorMessage('')
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const onGoogleButtonPress = async () => {
-  //   setLoading(true);
-  //   // googlefunction();
-  //   try {
-  //     GoogleSignin.configure({
-  //       webClientId: '69377085199-1o9q6cmm27hb6l0810oujabd10mepn38.apps.googleusercontent.com',
-  //     });
-      
-  //     // Sign out of any previous Google account
-  //     await GoogleSignin.signOut();
-  
-  //     // Check if your device supports Google Play
-  //     await GoogleSignin.hasPlayServices({
-  //       showPlayServicesUpdateDialog: true,
-  //     });
-  
-  //     // Attempt to sign in
-  //     const userInfo = await GoogleSignin.signIn(); // This should show the account picker
-  //     console.log("You have successfully signed in with Google!", userInfo);
-  //     // Check if the idToken is available
-  //     if (!userInfo.idToken) {
-  //       throw new Error('Google Sign-In failed: No idToken returned.');
-  //     }
-  
-  //     // Get the user's ID token
-  //     const { idToken } = userInfo;
-  
-  //     // Create a Google credential with the token
-  //     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-  
-  //     // Sign-in the user with the credential
-  //     const userCredential = await auth().signInWithCredential(googleCredential);
-  //     console.log("You have successfully signed in with Google!", userCredential);
-  
-  //     // Get user details
-  //     setErrorMessage('');
-  //     const userDetail = userCredential.user.toJSON();
-  //     const userId = userDetail.uid;
-  //     const email = userDetail.email;
-  //     const fullName = userDetail.displayName;
-  
-  //     // Check if user already exists in Firestore
-  //     const userRef = firestore().collection("users").doc(userId);
-  //     const userDoc = await userRef.get();
-  
-  //     if (!userDoc.exists) {
-  //       // If user doesn't exist, create a new record
-  //       await userRef.set({
-  //         name: fullName || "",
-  //         email: email,
-  //         password: "", // Google sign-in does not provide the password, so this will be empty
-  //         deviceId: deviceId,
-  //         image: "",
-  //         purchasedServersList: [],
-  //       });
-  
-  //       console.log("You have successfully signed up with Google!");
-  //       setGoogleMessageData("You have successfully signed up with Google!");
-  //     } else {
-  //       console.log("You have successfully logged in with Google!");
-  //       setGoogleMessageData("You have successfully logged in with Google!");
-  //     }
-  //   } catch (error) {
-  //     console.log("Login error: ", error);
-  //     let message = "An error occurred. Please try again.";
-  
-  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-  //       message = "Sign-in was cancelled by the user.";
-  //     } else if (error.code === statusCodes.IN_PROGRESS) {
-  //       message = "Sign-in is in progress.";
-  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-  //       message = "Google Play Services is not available.";
-  //     } else {
-  //       message = `Error: ${error.message}`;
-  //     }
-  
-  //     setGoogleMessageData(message);
-  //     setErrorMessage('');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const onGoogleButtonPress = async () => {
     setLoading(true);
     try {
@@ -557,7 +436,7 @@ const LoginScreen = ({ navigation }) => {
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         message = "Google Play Services is not available.";
       } else {
-        message = `Error: ${error.message}`;
+        message = `Error: you have cancle the Google auth`;
       }
   
       setGoogleMessageData(message);
@@ -580,7 +459,7 @@ const LoginScreen = ({ navigation }) => {
           onChangeText={setEmail}
           keyboardType="email-address"
           theme={{
-            colors: { primary: "orange", placeholder: "#888", text: "white" },
+            colors: { primary: "orange", placeholder: "#888", text: "#FFFFFF" ,fontFamily: "Poppins-Regular",},
           }}
           style={styles.input}
           outlineColor="#888"
@@ -594,7 +473,7 @@ const LoginScreen = ({ navigation }) => {
           onChangeText={setPassword}
           secureTextEntry={!showPassword} // Toggles password visibility
           theme={{
-            colors: { primary: "orange", placeholder: "#888", text: "white" },
+            colors: { primary: "orange", placeholder: "#888", text: "#FFFFFF",fontFamily: "Poppins-Regular", },
           }}
           style={styles.input}
           outlineColor="#888"
@@ -664,8 +543,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    color: "orange",
-    fontWeight: "bold",
+    color: "#FE8C00",
+   fontFamily: "Poppins-Bold",
     marginBottom: 20,
     textAlign: "center",
   },
@@ -677,22 +556,21 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   forgetPasswordText: {
-    color: "orange",
+    color: "#FE8C00",
     fontSize: 12,
     textAlign: "right",
+    fontFamily: "Poppins-Medium",
   },
-  linkText: {
-    color: "orange",
-    fontWeight: "bold",
-  },
+
   socialLoginContainer: {
     marginVertical: 20,
     alignItems: "center",
   },
   orText: {
-    color: "white",
+    color: "#6D6C69",
     fontSize: 14,
     marginBottom: 10,
+    fontFamily: "Poppins-Medium",
   },
 
   signInContainer: {
@@ -702,18 +580,20 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   signInText: {
-    color: "white",
+    color: "#DBD6CE",
     textAlign: "center",
+    fontFamily: "Poppins-Medium",
   },
   linkText: {
-    color: "orange", // Or whatever color you prefer for the link
+    color: "#FE8C00", // Or whatever color you prefer for the link
     textAlign: "center",
-    fontWeight: "bold",
+    fontFamily: "Poppins-SemiBold",
   },
   errorText: {
     color: "red",
     fontSize: 12,
     marginTop: -4,
+    fontFamily: "Poppins-Regular",
   },
 });
 
