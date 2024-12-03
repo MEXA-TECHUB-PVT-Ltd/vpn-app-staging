@@ -405,6 +405,7 @@ import Papa from 'papaparse';
 import Images from '../constants/Image';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { region_url, server_url } from '../constants/baseUrls';
 const LocationSelectionScreen = ({ navigation }) => {
     const [search, setSearch] = useState('');
     const [vpnServers, setVpnServers] = useState([]);
@@ -523,7 +524,8 @@ const LocationSelectionScreen = ({ navigation }) => {
           }
           console.log('storage data hai????', cachedData)
           // If no cached data, call the API
-          const response = await fetch('http://www.vpngate.net/api/iphone/');
+          const response = await fetch(server_url);
+          // const response = await fetch('http://www.vpngate.net/api/iphone/');
           if (!response.ok) throw new Error('Network response was not ok');
           const data = await response.text();
   
@@ -552,7 +554,7 @@ const LocationSelectionScreen = ({ navigation }) => {
                       servers.map(async (server) => {
                           const ip = server.IP; // Extract IP from server
                           if (ip) {
-                              const regionResponse = await fetch(`https://ipwhois.app/json/${ip}`);
+                              const regionResponse = await fetch(region_url + `${ip}`);
                               const regionData = await regionResponse.json();
                               // Combine the original server data with the region data
                               return { ...server, region: regionData.region };

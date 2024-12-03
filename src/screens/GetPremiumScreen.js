@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,16 +11,76 @@ import CustomHeader from "../components/CustomHeader";
 import Images from "../constants/Image";
 import CustomSnackbar from "../components/CustomSnackbar";
 
+
+import RNIap, {
+  initConnection,
+  endConnection,
+  requestPurchase,
+  getSubscriptions,
+  requestSubscription
+} from 'react-native-iap';
 const GetPremiumScreen = ({ navigation }) => {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [snackbarVisible, setsnackbarVisible] = useState(false);
 
-  const subscriptionPlans = [
-    { id: 1, period: "1 Month", price: "$1.99" },
-    { id: 2, period: "6 Month", price: "$9.99" },
-    { id: 3, period: "1 Year", price: "$16.99" },
-    { id: 4, period: "2 Years", price: "$31.99" },
-  ];
+  // const subscriptionPlans = [
+  //   { id: 1, period: "1 Month", price: "$1.99" },
+  //   { id: 2, period: "6 Month", price: "$9.99" },
+  //   { id: 3, period: "1 Year", price: "$16.99" },
+  //   { id: 4, period: "2 Years", price: "$31.99" },
+  // ];
+
+  const subscriptionPlans = ['vpn_1_month', 'vpn_6_months', 'vpn_1_year', 'vpn_2_years'];
+  const [products, setProducts] = useState([]);
+
+
+  useEffect(() => {
+    const initializeIAP = async () => {
+      try {
+        await initConnection(); // Initialize IAP connection
+        console.log('IAP Connection initialized');
+      } catch (error) {
+        console.error('Error initializing IAP: ', error);
+      }
+    };
+    initializeIAP();
+  
+    // Cleanup IAP connection on unmount
+    return () => {
+      endConnection();
+      console.log('IAP Connection ended');
+    };
+  }, []);
+  
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        // Fetch the subscription items by passing SKUs
+        const items = await getSubscriptions(subscriptionPlans);
+        setProducts(items);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+  
+    fetchProducts();
+  }, []);
+  
+  // Handle purchase flow
+  const handlePurchase = async (productId) => {
+    try {
+      const purchase = await requestSubscription(productId);
+      console.log('Purchase successful:', purchase);
+  
+      // Validate the purchase on the backend
+      validatePurchase(purchase);
+    } catch (error) {
+      console.error('Purchase error:', error);
+    }
+  };
+  
+
+
 
   const handleGetPremioum = (selectedPlan) => {
     console.log('selectedPlan', selectedPlan)
@@ -62,6 +122,7 @@ const GetPremiumScreen = ({ navigation }) => {
     </TouchableOpacity>
   );
 
+  
   return (
     <View style={styles.container}>
       <CustomHeader
@@ -88,13 +149,26 @@ const GetPremiumScreen = ({ navigation }) => {
 
       <View style={{ marginTop: 20 }}>
         <Text style={styles.subHeaderText}>Select Your Subscription</Text>
+        <View>
+    {products.map((product) => (
+      <View key={product.productId}>
+        <Text>{product.title}</Text>
+        <Text>{product.description}</Text>
+        <Text>{product.localizedPrice}</Text>
+        <Button
+          title={`Buy ${product.title}`}
+          onPress={() => handlePurchase(product.productId)}
+        />
+      </View>
+    ))}
+  </View>
 
-        <FlatList
+        {/* <FlatList
           data={subscriptionPlans}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
           style={styles.list}
-        />
+        /> */}
       </View>
       <TouchableOpacity onPress={()=>handleGetPremioum(selectedPlan)}
         style={[

@@ -57,6 +57,8 @@ import com.rnfs.RNFSPackage;
 import com.swmansion.gesturehandler.RNGestureHandlerPackage;
 // react-native-google-mobile-ads
 import io.invertase.googlemobileads.ReactNativeGoogleMobileAdsPackage;
+// react-native-iap
+import com.dooboolab.rniap.RNIapPackage;
 // react-native-image-crop-picker
 import com.reactnative.ivpusic.imagepicker.PickerPackage;
 // react-native-image-picker
@@ -157,6 +159,7 @@ public class PackageList {
       new RNFSPackage(),
       new RNGestureHandlerPackage(),
       new ReactNativeGoogleMobileAdsPackage(),
+      new RNIapPackage(),
       new PickerPackage(),
       new ImagePickerPackage(),
       new LinearGradientPackage(),
