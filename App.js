@@ -30,6 +30,8 @@ import {
 import GetPremiumScreen from './src/screens/GetPremiumScreen';
 // Authentication Stack (Login, Signup, etc.)
 // const AuthStack = createStackNavigator();
+
+// "react-native-reanimated": "^3.16.3",
 const AuthStack = createNativeStackNavigator();
 const AuthStackScreen = () => (
   <AuthStack.Navigator screenOptions={{headerShown:false}}>

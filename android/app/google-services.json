@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "124123034810-g63lsme8s2l9cjt8ft6a4mrllnsbuvm8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.stealthlinkvpnapp",
+            "certificate_hash": "489f044e8c86c0756c956b9895177c18a40ee655"
+          }
+        },
+        {
           "client_id": "124123034810-rakb9fpqv8al9l551kpb4sqpo9o5iuva.apps.googleusercontent.com",
           "client_type": 3
         }

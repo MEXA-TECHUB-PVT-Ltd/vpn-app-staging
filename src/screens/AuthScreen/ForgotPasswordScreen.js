@@ -214,8 +214,10 @@ const ForgotPasswordScreen = ({ navigation }) => {
           onChangeText={setEmail}
           keyboardType="email-address"
           style={styles.input}
+            textColor='white'
+          placeholderTextColor="white"
           mode="outlined"
-          placeholderTextColor="#888"
+
           theme={{
             colors: { primary: "orange", placeholder: "#888", text: "white" },
           }}

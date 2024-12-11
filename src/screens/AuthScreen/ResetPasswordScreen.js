@@ -35,6 +35,8 @@ const ResetPasswordScreen = ({ route }) => {
         onChangeText={setNewPassword}
         secureTextEntry
         style={styles.input}
+         textColor='white'
+          placeholderTextColor="white"
       />
       {/* <Button title="Reset Password" onPress={handleResetPassword} /> */}
     </View>
