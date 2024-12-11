@@ -458,6 +458,8 @@ const LoginScreen = ({ navigation }) => {
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
+          textColor='white'
+          placeholderTextColor="white"
           theme={{
             colors: { primary: "orange", placeholder: "#888", text: "#FFFFFF" ,fontFamily: "Poppins-Regular",},
           }}
@@ -471,6 +473,8 @@ const LoginScreen = ({ navigation }) => {
           placeholder="Enter Password"
           value={password}
           onChangeText={setPassword}
+            textColor='white'
+          placeholderTextColor="white"
           secureTextEntry={!showPassword} // Toggles password visibility
           theme={{
             colors: { primary: "orange", placeholder: "#888", text: "#FFFFFF",fontFamily: "Poppins-Regular", },

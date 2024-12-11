@@ -402,6 +402,8 @@ const SignupScreen = ({ navigation }) => {
           mode="outlined"
           placeholder="Enter Full Name"
           value={fullName}
+            textColor='white'
+          placeholderTextColor="white"
           onChangeText={setFullName}
           theme={{
             colors: { primary: "orange", placeholder: "#888", text: "#DBD6CE", fontFamily: "Poppins-Regular", },
@@ -417,6 +419,8 @@ const SignupScreen = ({ navigation }) => {
           placeholder="Enter Email"
           value={email}
           onChangeText={setEmail}
+            textColor='white'
+          placeholderTextColor="white"
           keyboardType="email-address"
           theme={{
             colors: { primary: "orange", placeholder: "#888", text: "#DBD6CE", fontFamily: "Poppins-Regular", },
@@ -435,6 +439,8 @@ const SignupScreen = ({ navigation }) => {
           label="Password"
           mode="outlined"
           placeholder="Enter Password"
+            textColor='white'
+          placeholderTextColor="white"
           value={password}
           onChangeText={setPassword}
           secureTextEntry={!showPassword}
@@ -461,6 +467,8 @@ const SignupScreen = ({ navigation }) => {
           label="Confirm Password"
           mode="outlined"
           placeholder="Confirm Password"
+            textColor='white'
+          placeholderTextColor="white"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry={!showConfirmPassword}

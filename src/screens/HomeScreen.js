@@ -10,7 +10,7 @@ import {
   Animated,
   Easing,
 } from "react-native";
-import BackgroundTimer from "react-native-background-timer";
+// import BackgroundTimer from "react-native-background-timer";
 import { useNavigation } from "@react-navigation/native";
 import CustomHeader from "../components/CustomHeader";
 import CountryFlag from "react-native-country-flag";
@@ -120,41 +120,41 @@ const HomeScreen = ({ route }) => {
     handleVpnState(); // Execute the logic when vpnState changes
   }, [vpnState, selectedVpn]); 
 
-  useEffect(() => {
-    let timer; // Variable to hold the timer reference
-    let startTime = Date.now(); // Track the start time of the timer
-  
-    if (vpnState === "connected") {
-      // Start the timer when VPN is connected
-      timer = BackgroundTimer.runBackgroundTimer(() => {
-        const now = Date.now();
-        const elapsedSeconds = Math.floor((now - startTime) / 1000); // Calculate elapsed time in seconds
-        setConnectionTime(elapsedSeconds); // Update connection time
-      }, 1000); // Run every second
-    } else if (vpnState === "disconnected") {
-      // Stop the timer when VPN is disconnected
-      BackgroundTimer.stopBackgroundTimer();
-      setConnectionTime(0); // Reset connection time
-      startTime = Date.now(); // Reset start time
-    }
-  
-    // Cleanup function to stop the timer when the component unmounts or vpnState changes
-    return () => {
-      BackgroundTimer.stopBackgroundTimer();
-    };
-  }, [vpnState]);
   // useEffect(() => {
-  //   let timer;
-  //   if (isTimerRunning) {
-  //     // Increment connection time every second
-  //     timer = setInterval(() => {
-  //       setConnectionTime((prevTime) => prevTime + 1);
-  //     }, 1000);
+  //   let timer; // Variable to hold the timer reference
+  //   let startTime = Date.now(); // Track the start time of the timer
+  
+  //   if (vpnState === "connected") {
+  //     // Start the timer when VPN is connected
+  //     timer = BackgroundTimer.runBackgroundTimer(() => {
+  //       const now = Date.now();
+  //       const elapsedSeconds = Math.floor((now - startTime) / 1000); // Calculate elapsed time in seconds
+  //       setConnectionTime(elapsedSeconds); // Update connection time
+  //     }, 1000); // Run every second
+  //   } else if (vpnState === "disconnected") {
+  //     // Stop the timer when VPN is disconnected
+  //     BackgroundTimer.stopBackgroundTimer();
+  //     setConnectionTime(0); // Reset connection time
+  //     startTime = Date.now(); // Reset start time
   //   }
+  
+  //   // Cleanup function to stop the timer when the component unmounts or vpnState changes
+  //   return () => {
+  //     BackgroundTimer.stopBackgroundTimer();
+  //   };
+  // }, [vpnState]);
+  useEffect(() => {
+    let timer;
+    if (isTimerRunning) {
+      // Increment connection time every second
+      timer = setInterval(() => {
+        setConnectionTime((prevTime) => prevTime + 1);
+      }, 1000);
+    }
 
-  //   // Clean up timer on component unmount or when timer stops
-  //   return () => clearInterval(timer);
-  // }, [isTimerRunning]);
+    // Clean up timer on component unmount or when timer stops
+    return () => clearInterval(timer);
+  }, [isTimerRunning]);
 
   // Convert connectionTime to hours, minutes, seconds
   const formatTime = (seconds) => {
