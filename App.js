@@ -28,13 +28,17 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import GetPremiumScreen from './src/screens/GetPremiumScreen';
+import FlashMessage from 'react-native-flash-message';
+import SplashScreen from './src/screens/AuthScreen/SplashScreen';
+import TestScreen from './src/screens/TestScreen';
 // Authentication Stack (Login, Signup, etc.)
 // const AuthStack = createStackNavigator();
 
 // "react-native-reanimated": "^3.16.3",
 const AuthStack = createNativeStackNavigator();
 const AuthStackScreen = () => (
-  <AuthStack.Navigator screenOptions={{headerShown:false}}>
+  <AuthStack.Navigator initialRouteName="SplashScreen" screenOptions={{headerShown:false}}>
+   <AuthStack.Screen name="SplashScreen" component={SplashScreen} />
     <AuthStack.Screen name="OnboardingScreen" component={OnboardingScreen} />
     <AuthStack.Screen name="LoginScreen" component={LoginScreen} />
     <AuthStack.Screen name="SignupScreen" component={SignupScreen} />
@@ -114,6 +118,11 @@ const SettingStackNavigator = () => {
         options={{ headerShown: false }} // Assuming you have a custom header
       />
       <SettingStack.Screen 
+        name="TestScreen" 
+        component={TestScreen} 
+        options={{ headerShown: false }} // Assuming you have a custom header
+      />
+      <SettingStack.Screen 
         name="PrivacyPolicy" 
         component={PrivacyPolicy} 
         options={{ headerShown: false }} // Custom header for HelpScreenDetails
@@ -162,12 +171,13 @@ const App = () => {
 
 
 
-
+  if (initializing) return null;
 
 
   return (
     <NavigationContainer>
       {user ? <MainDrawer /> : <AuthStackScreen />}
+          <FlashMessage position="top" />
     </NavigationContainer>
   );
 };

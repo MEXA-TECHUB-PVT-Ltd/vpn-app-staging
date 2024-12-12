@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, Image, TouchableWithoutFeedback } from 'react-native';
 import Icon from 'react-native-vector-icons/EvilIcons';
 
 const CustomModal = ({ visible, onClose, icon, image, title, description, onConfirm, onCancel }) => {
@@ -10,6 +10,7 @@ const CustomModal = ({ visible, onClose, icon, image, title, description, onConf
             visible={visible}
             onRequestClose={onClose}
         >
+             <TouchableWithoutFeedback onPress={onClose}>
             <View style={styles.modalBackground}>
                 <View style={styles.modalContainer}>
                     {/* Icon or Image */}
@@ -33,6 +34,7 @@ const CustomModal = ({ visible, onClose, icon, image, title, description, onConf
                     </View>
                 </View>
             </View>
+            </TouchableWithoutFeedback>
         </Modal>
     );
 };
