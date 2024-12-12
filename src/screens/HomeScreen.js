@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,38 +9,38 @@ import {
   Modal,
   Animated,
   Easing,
-} from "react-native";
+} from 'react-native';
 // import BackgroundTimer from "react-native-background-timer";
-import { useNavigation } from "@react-navigation/native";
-import CustomHeader from "../components/CustomHeader";
-import CountryFlag from "react-native-country-flag";
-import CustomModal from "../components/CustomModal";
-import Button from "../components/Button";
-import Images from "../constants/Image";
-import Icon from "react-native-vector-icons/FontAwesome";
+import {useNavigation} from '@react-navigation/native';
+import CustomHeader from '../components/CustomHeader';
+import CountryFlag from 'react-native-country-flag';
+import CustomModal from '../components/CustomModal';
+import Button from '../components/Button';
+import Images from '../constants/Image';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import {
   NativeModules,
   NativeEventEmitter,
   DeviceEventEmitter,
-} from "react-native";
+} from 'react-native';
 
-import Papa from "papaparse";
-import { useIsFocused } from "@react-navigation/native";
-const { VpnServiceModule, MainActivity } = NativeModules;
-import { Buffer } from "buffer"; // Make sure to install buffer with `npm install buffer`
-import CustomSnackbar from "../components/CustomSnackbar";
+import Papa from 'papaparse';
+import {useIsFocused} from '@react-navigation/native';
+const {VpnServiceModule, MainActivity} = NativeModules;
+import {Buffer} from 'buffer'; // Make sure to install buffer with `npm install buffer`
+import CustomSnackbar from '../components/CustomSnackbar';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
-} from "react-native-responsive-screen";
+} from 'react-native-responsive-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const decodeBase64 = (base64String) => {
-  const buffer = Buffer.from(base64String, "base64");
-  return buffer.toString("utf-8");
+const decodeBase64 = base64String => {
+  const buffer = Buffer.from(base64String, 'base64');
+  return buffer.toString('utf-8');
 };
 
-const HomeScreen = ({ route }) => {
+const HomeScreen = ({route}) => {
   // const locationselect =  route.params
   const [isConnected, setIsConnected] = useState(false);
   const navigation = useNavigation();
@@ -48,10 +48,10 @@ const HomeScreen = ({ route }) => {
   const progress = useRef(new Animated.Value(0)).current;
   const [location, setLocation] = useState(null);
 
-  const [vpnState, setVpnState] = useState("disconnected");
+  const [vpnState, setVpnState] = useState('disconnected');
   const [vpnList, setVpnList] = useState([]);
   const [selectedVpn, setSelectedVpn] = useState(null);
-  const [vpnStatus, setVpnStatus] = useState("");
+  const [vpnStatus, setVpnStatus] = useState('');
   const [snackbarVisible, setsnackbarVisible] = useState(false);
   const [isPasswordUpdated, setIsPasswordUpdated] = useState(false);
   const [byteIn, setByteIn] = useState(0);
@@ -61,18 +61,18 @@ const HomeScreen = ({ route }) => {
     // Initialize VPNs
     initVpn();
     const vpnStateListener = DeviceEventEmitter.addListener(
-      "VpnStage",
-      (stage) => {
+      'VpnStage',
+      stage => {
         setVpnState(stage.stage.toLowerCase());
-      }
+      },
     );
     const vpnStatusSubscription = DeviceEventEmitter.addListener(
-      "VpnStatus",
-      (event) => {
-        setByteIn(event.byte_in || 0); // Default to 0 if undefined
+      'VpnStatus',
+      event => {
+        setByteIn(event.byte_in || 0);
         setByteOut(event.byte_out || 0); // Default to 0 if undefined
         // setVpnStatus(`${event.byte_in || ""}, ${event.byte_out || ""}`);
-      }
+      },
     );
 
     return () => {
@@ -84,9 +84,9 @@ const HomeScreen = ({ route }) => {
   const initVpn = async () => {
     const vpnList = [
       {
-        country: "Japan",
-        username: "vpn",
-        password: "vpn",
+        country: 'Japan',
+        username: 'vpn',
+        password: 'vpn',
         // config: await fetchConfigFile('japan.ovpn'),
       },
       // {
@@ -105,7 +105,7 @@ const HomeScreen = ({ route }) => {
 
   useEffect(() => {
     const handleVpnState = async () => {
-      if (vpnState === "connected") {
+      if (vpnState === 'connected') {
         setIsTimerRunning(true);
         if (selectedVpn) {
           await storeVpnData(selectedVpn); // Store VPN data once when connected
@@ -113,17 +113,17 @@ const HomeScreen = ({ route }) => {
       } else {
         setIsTimerRunning(false);
         setConnectionTime(0); // Reset time when disconnected
-       // Remove VPN data when disconnected
+        // Remove VPN data when disconnected
       }
     };
 
     handleVpnState(); // Execute the logic when vpnState changes
-  }, [vpnState, selectedVpn]); 
+  }, [vpnState, selectedVpn]);
 
   // useEffect(() => {
   //   let timer; // Variable to hold the timer reference
   //   let startTime = Date.now(); // Track the start time of the timer
-  
+
   //   if (vpnState === "connected") {
   //     // Start the timer when VPN is connected
   //     timer = BackgroundTimer.runBackgroundTimer(() => {
@@ -137,7 +137,7 @@ const HomeScreen = ({ route }) => {
   //     setConnectionTime(0); // Reset connection time
   //     startTime = Date.now(); // Reset start time
   //   }
-  
+
   //   // Cleanup function to stop the timer when the component unmounts or vpnState changes
   //   return () => {
   //     BackgroundTimer.stopBackgroundTimer();
@@ -148,7 +148,7 @@ const HomeScreen = ({ route }) => {
     if (isTimerRunning) {
       // Increment connection time every second
       timer = setInterval(() => {
-        setConnectionTime((prevTime) => prevTime + 1);
+        setConnectionTime(prevTime => prevTime + 1);
       }, 1000);
     }
 
@@ -157,17 +157,15 @@ const HomeScreen = ({ route }) => {
   }, [isTimerRunning]);
 
   // Convert connectionTime to hours, minutes, seconds
-  const formatTime = (seconds) => {
+  const formatTime = seconds => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(
       2,
-      "0"
-    )}:${String(secs).padStart(2, "0")}`;
+      '0',
+    )}:${String(secs).padStart(2, '0')}`;
   };
-
-
 
   // ye final and working modal hai
   // const startVpn = async () => {
@@ -203,19 +201,19 @@ const HomeScreen = ({ route }) => {
 
     // console.log("VPN Config -----------", selectedVpn);
 
-    if (vpnState === "disconnected") {
+    if (vpnState === 'disconnected') {
       VpnServiceModule.startVpn(
         config, // Pass the config (either directly or decoded)
         selectedVpn.CountryLong,
-        "vpn",
-        "vpn",
+        'vpn',
+        'vpn',
         null,
-        null
+        null,
       );
     } else {
       VpnServiceModule.stopVpn();
-      setVpnState("disconnected");
-      setVpnStatus("Disconnected from VPN");
+      setVpnState('disconnected');
+      setVpnStatus('Disconnected from VPN');
     }
   };
 
@@ -251,7 +249,6 @@ const HomeScreen = ({ route }) => {
     setModalVisible(false);
   };
 
-
   const dismissSnackbar = () => {
     setsnackbarVisible(false);
   };
@@ -262,8 +259,8 @@ const HomeScreen = ({ route }) => {
     }, 3000);
   };
 
-   // Function to store selected VPN in AsyncStorage
-   const storeVpnData = async (vpnData) => {
+  // Function to store selected VPN in AsyncStorage
+  const storeVpnData = async vpnData => {
     // console.log('data-------', vpnData)
     try {
       await AsyncStorage.setItem('selectedVpndata', JSON.stringify(vpnData));
@@ -274,14 +271,7 @@ const HomeScreen = ({ route }) => {
   };
 
   // Function to remove selected VPN from AsyncStorage
-  const removeVpnData = async () => {
-    try {
-      await AsyncStorage.removeItem('selectedVpndata');
-      console.log('VPN data removed successfully');
-    } catch (error) {
-      console.error('Error removing VPN data', error);
-    }
-  };
+
   const getStoredVpnData = async () => {
     try {
       const storedVpn = await AsyncStorage.getItem('selectedVpndata');
@@ -293,9 +283,8 @@ const HomeScreen = ({ route }) => {
       console.error('Error retrieving VPN data', error);
     }
   };
-  
-  // Call the getStoredVpnData inside useEffect to load stored VPN on component mount
 
+  // Call the getStoredVpnData inside useEffect to load stored VPN on component mount
 
   useEffect(() => {
     // Check if byteIn has a value and handleUpdatePassword has not been called yet
@@ -309,18 +298,25 @@ const HomeScreen = ({ route }) => {
   useEffect(() => {
     // Check if byteIn has a value and handleUpdatePassword has not been called yet
     if (vpnState === 'disconnected') {
-        setConnectText('Disconnected')
-    } else if (vpnState === 'prepare' || vpnState === 'connecting'  || vpnState === 'noprocess' || vpnState === 'vpn_generate_config'  || vpnState === 'tcp_connect' || vpnState === 'wait' || vpnState === 'auth' ){
-      setConnectText('Connecting')
-    } else if (vpnState === 'get_config'){
-      setConnectText('Poor Connection')
-    } else if (vpnState === 'assign_ip'){
-      setConnectText('trying...')
+      setConnectText('');
+    } else if (
+      vpnState === 'prepare' ||
+      vpnState === 'connecting' ||
+      vpnState === 'noprocess' ||
+      vpnState === 'vpn_generate_config' ||
+      vpnState === 'tcp_connect' ||
+      vpnState === 'wait' ||
+      vpnState === 'auth'
+    ) {
+      setConnectText('Connecting');
+    } else if (vpnState === 'get_config') {
+      setConnectText('Poor Connection');
+    } else if (vpnState === 'assign_ip') {
+      setConnectText('trying...');
     } else {
-      setConnectText('Connected')
+      setConnectText('Connected');
     }
   }, [vpnState]);
-
 
   // const animatedStyle = {
   //   borderColor: progress.interpolate({
@@ -339,13 +335,13 @@ const HomeScreen = ({ route }) => {
   const animatedOuterCircle = {
     borderColor: progress.interpolate({
       inputRange: [0, 1],
-      outputRange: ["rgba(255, 255, 255, 0.2)", "#DBD6CE"],
+      outputRange: ['rgba(255, 255, 255, 0.2)', '#DBD6CE'],
     }),
     transform: [
       {
         rotate: progress.interpolate({
           inputRange: [0, 1],
-          outputRange: ["0deg", "360deg"],
+          outputRange: ['0deg', '360deg'],
         }),
       },
     ],
@@ -354,7 +350,7 @@ const HomeScreen = ({ route }) => {
   const animatedInnerCircle = {
     borderColor: progress.interpolate({
       inputRange: [0, 1],
-      outputRange: ["rgba(255, 255, 255, 0.5)", "#6D6C69"],
+      outputRange: ['rgba(255, 255, 255, 0.5)', '#6D6C69'],
     }),
   };
   // const [location, setLocation] = useState({
@@ -395,21 +391,21 @@ const HomeScreen = ({ route }) => {
       const configData = await fetchConfigFile();
 
       setLocation({
-        CountryLong: "Japan",
-        region: "Ibaraki",
-        location: "JP",
+        CountryLong: 'Japan',
+        region: 'Ibaraki',
+        location: 'JP',
         signalStrength: 4,
-        CountryShort: "JP",
-        IP: "219.100.37.169",
+        CountryShort: 'JP',
+        IP: '219.100.37.169',
       });
 
       setSelectedVpn({
-        CountryLong: "Japan",
-        region: "Ibaraki",
-        location: "JP",
+        CountryLong: 'Japan',
+        region: 'Ibaraki',
+        location: 'JP',
         signalStrength: 43,
-        CountryShort: "JP",
-        IP: "219.100.37.169",
+        CountryShort: 'JP',
+        IP: '219.100.37.169',
         configdatafile: configData, // Using the fetched config data
       });
     };
@@ -418,8 +414,8 @@ const HomeScreen = ({ route }) => {
       setLocation(route.params.selectedVpn);
       setSelectedVpn(route.params.selectedVpn);
       console.log(
-        "route ka data ------",
-        route.params.selectedVpn.CountryShort
+        'route ka data ------',
+        route.params.selectedVpn.CountryShort,
       );
     } else {
       setStaticData(); // Call async function to fetch and set static data
@@ -644,7 +640,7 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
 `;
 
   // Utility to determine signal strength based on speed
-  const getSignalStrength = (speed) => {
+  const getSignalStrength = speed => {
     if (speed > 100000000) {
       return 4; // Strong signal
     } else if (speed > 50000000) {
@@ -668,10 +664,10 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
           key={i}
           style={[
             styles.bar,
-            { height: 10 * i }, // Adjust height for visual effect
+            {height: 10 * i}, // Adjust height for visual effect
             i <= signalStrength ? styles.activeBar : styles.inactiveBar, // Conditional styling
           ]}
-        />
+        />,
       );
     }
     return bars;
@@ -685,24 +681,21 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
           style={{
             paddingHorizontal: 10,
             paddingVertical: 10,
-          }}
-        >
+          }}>
           <View
             style={{
               paddingLeft: 6,
-            }}
-          >
+            }}>
             <CustomHeader
               leftComponent={
                 <TouchableOpacity
                   // onPress={() => navigation.openDrawer()}
                   onPress={() => navigation.toggleDrawer()}
                   style={{
-                    backgroundColor: "#6D6C69",
+                    backgroundColor: '#6D6C69',
                     borderRadius: 30,
                     padding: 8,
-                  }}
-                >
+                  }}>
                   <Image source={Images.DrawerMenu} />
                   {/* <Image source={require('../assets/images/MenuButton.png')} /> */}
                 </TouchableOpacity>
@@ -712,8 +705,7 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
               }
               rightComponent={
                 <TouchableOpacity
-                  onPress={() => navigation.navigate("GetPremiumScreen")}
-                >
+                  onPress={() => navigation.navigate('GetPremiumScreen')}>
                   <Image source={Images.tajIcon} />
                 </TouchableOpacity>
               }
@@ -763,18 +755,16 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
 
           <TouchableOpacity
             style={styles.changeLocationButton}
-            onPress={() => navigation.navigate("LocationSelectionScreen")}
-          >
+            onPress={() => navigation.navigate('LocationSelectionScreen')}>
             <Image source={Images.ChangeLocation} />
           </TouchableOpacity>
 
           <View
             style={{
-              backgroundColor: "#1c161b",
+              backgroundColor: '#1c161b',
               borderRadius: 8,
-              alignItems: "center",
-            }}
-          >
+              alignItems: 'center',
+            }}>
             {/* <Text style={styles.timerText}>VPN Connection Time:</Text> */}
             <Text style={styles.timer}>{formatTime(connectionTime)}</Text>
           </View>
@@ -820,22 +810,21 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
                   : styles.connectButtonMain
               }
               onPress={() => {
-                if (vpnState === "disconnected") {
+                if (vpnState === 'disconnected') {
                   startVpn(); // Function to connect VPN
                   handleConnectionToggle();
                 } else {
                   // startVpn();  // Function to disconnect VPN
                   handleConnectionToggle();
                 }
-              }}
-            >
+              }}>
               <Image
-                source={vpnState === "connected" ? Images.x : Images.Connect}
+                source={vpnState === 'connected' ? Images.x : Images.Connect}
                 // source={vpnState === "disconnected" ? Images.Connect : Images.x}
               />
             </TouchableOpacity>
           </View>
-        
+
           <CustomModal
             visible={modalVisible}
             onClose={closeModal}
@@ -846,14 +835,13 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
           />
         </View>
 
-        <View style={{ flex: 1, justifyContent: "flex-end" }}>
-       
+        <View style={{flex: 1, justifyContent: 'flex-end'}}>
           <ImageBackground
             source={Images.Background} // Use your background image
             style={{
-              height: "100%",
-              width: "100%",
-              position: "absolute",
+              height: '100%',
+              width: '100%',
+              position: 'absolute',
               bottom: 0,
               right: 0,
               left: 0,
@@ -862,19 +850,29 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
             }}
             resizeMode="stretch" // Optional: choose how the image should be resized
           >
-             <View style={{ justifyContent:'center',alignItems:'center', marginTop:hp('12%'), }}>
-             <Text style={{ color: "#FFFFFF",
-    fontSize: 18,
-    fontFamily: "Poppins-Medium",}}>{ConnectText || ''}</Text>
-             </View>
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: hp('12%'),
+              }}>
+              <Text
+                style={{
+                  color: '#FFFFFF',
+                  fontSize: 18,
+                  fontFamily: 'Poppins-Medium',
+                }}>
+                {ConnectText || ''}
+              </Text>
+            </View>
             {isConnected ? (
               <View style={styles.speedContainer}>
                 <View style={styles.speedBox}>
-                  <Image source={Images.arrowUP} style={{ marginRight: 8 }} />
+                  <Image source={Images.arrowUP} style={{marginRight: 8}} />
                   <Text style={styles.timerText}>{byteIn}</Text>
                 </View>
                 <View style={styles.speedBox}>
-                  <Image source={Images.arrowDown} style={{ marginRight: 8 }} />
+                  <Image source={Images.arrowDown} style={{marginRight: 8}} />
                   <Text style={styles.timerText}>{byteOut}</Text>
                 </View>
               </View>
@@ -933,31 +931,31 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1c161b",
+    backgroundColor: '#1c161b',
   },
   drawerBackground: {
     flex: 1,
-    resizeMode: "cover",
+    resizeMode: 'cover',
     // paddingVertical: 10,
     // paddingHorizontal: 10,
   },
 
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   logo: {
     width: 50,
     height: 50,
   },
   locationContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 30,
     marginBottom: 10,
     borderRadius: 6,
-    backgroundColor: "#FFFFFF1A",
+    backgroundColor: '#FFFFFF1A',
     marginHorizontal: 10,
     padding: 10,
   },
@@ -966,117 +964,117 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   locationText: {
-    color: "#DBD6CE",
+    color: '#DBD6CE',
     fontSize: 15,
-    fontFamily: "Poppins-Regular",
+    fontFamily: 'Poppins-Regular',
   },
   cityText: {
-    color: "#DBD6CE",
+    color: '#DBD6CE',
     fontSize: 12,
-    fontFamily: "Poppins-Light",
+    fontFamily: 'Poppins-Light',
   },
   changeLocationButton: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     // backgroundColor: '#ffaf1a',
     // paddingHorizontal: 20,
     // paddingVertical: 10,
     borderRadius: 20,
-    alignSelf: "center",
+    alignSelf: 'center',
     marginVertical: 20,
   },
   changeLocationText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
     marginRight: 5,
   },
   timerContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 30,
   },
   timerText: {
-    color: "white",
+    color: 'white',
     fontSize: 14,
-    fontFamily: "Poppins-Medium",
+    fontFamily: 'Poppins-Medium',
   },
   ipText: {
-    color: "orange",
+    color: 'orange',
     fontSize: 14,
     marginTop: 10,
   },
   connectButton: {
-    backgroundColor: "#ffaf1a",
+    backgroundColor: '#ffaf1a',
     width: 100,
     height: 100,
     borderRadius: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
     marginBottom: 20,
   },
   disconnectButton: {
-    backgroundColor: "#ff4d4d",
+    backgroundColor: '#ff4d4d',
     width: 100,
     height: 100,
     borderRadius: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
     marginBottom: 20,
   },
   speedContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: "10%",
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: '10%',
     margin: 4,
   },
   speedBox: {
-    backgroundColor: "#FFFFFF33",
+    backgroundColor: '#FFFFFF33',
     paddingHorizontal: 10,
     paddingVertical: 10,
     borderRadius: 10,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     margin: 4,
   },
   speedText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
     marginLeft: 10,
   },
 
   connectButtonMain: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     width: 124,
     height: 124,
     borderRadius: 80,
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
     // marginBottom: 20,
   },
   disconnectButtonMain: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     width: 124,
     height: 124,
     borderRadius: 80,
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
     // marginBottom: 20,
   },
 
   tapToConnectContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 40,
   },
   tapToConnectText: {
-    color: "#FFFFFF",
+    color: '#FFFFFF',
     fontSize: 30,
-    fontFamily: "Poppins-Medium",
+    fontFamily: 'Poppins-Medium',
   },
   Blueabsolute: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     bottom: 0,
@@ -1084,67 +1082,66 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalContent: {
     width: 300,
     padding: 20,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 10,
-    alignItems: "center",
+    alignItems: 'center',
   },
   modalText: {
     fontSize: 18,
-    color: "#333",
+    color: '#333',
     marginBottom: 20,
   },
   modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   cancelButton: {
-    color: "#999",
+    color: '#999',
     fontSize: 16,
   },
   disconnectButton: {
-    color: "#ff4d4d",
+    color: '#ff4d4d',
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 
   animationWrapper: {
-    justifyContent: "center",
-    alignItems: "center",
-    position: "relative",
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
     marginTop: 60,
     marginBottom: -50,
     zIndex: 9999,
   },
   powerButton: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     padding: 20,
     borderRadius: 100,
   },
 
   outerAnimatedCircle: {
-    position: "absolute",
+    position: 'absolute',
     width: wp('54%'), // Adjust the width based on percentage of screen width
     height: hp('27%'), // Adjust the height based on percentage of screen height
     borderRadius: wp('26%'), // Border radius half of the width for a perfect circle
     borderWidth: wp('5%'), // Border width responsive to screen size
-    borderColor: "rgba(255, 255, 255, 0.3)", // Outer animated circle color
+    borderColor: 'rgba(255, 255, 255, 0.3)', // Outer animated circle color
   },
   innerAnimatedCircle: {
-    position: "absolute",
+    position: 'absolute',
     width: wp('44%'), // Adjust width for inner circle
     height: hp('21.5%'), // Adjust height for inner circle
     borderRadius: wp('22%'), // Border radius for inner circle
     borderWidth: wp('5%'), // Border width responsive for inner circle
-    borderColor: "rgba(255, 255, 255, 0.3)", // Inner animated circle color
+    borderColor: 'rgba(255, 255, 255, 0.3)', // Inner animated circle color
   },
-
 
   // outerAnimatedCircle: {
   //   position: "absolute",
@@ -1164,29 +1161,29 @@ const styles = StyleSheet.create({
   // },
 
   progressCircle: {
-    position: "absolute",
+    position: 'absolute',
     width: 152,
     height: 152,
     borderRadius: 75,
     borderWidth: 8,
-    borderColor: "rgba(255, 255, 255, 0.3)", // Initial white transparent circle
+    borderColor: 'rgba(255, 255, 255, 0.3)', // Initial white transparent circle
   },
 
   selectLocationPrompt: {
-    alignItems: "center",
+    alignItems: 'center',
     // justifyContent: 'center',
     // flex: 1,
   },
   selectLocationText: {
-    color: "orange",
+    color: 'orange',
     fontSize: 16,
 
-    fontFamily: "Poppins-Regular",
+    fontFamily: 'Poppins-Regular',
   },
 
   signalContainer: {
-    flexDirection: "row",
-    alignItems: "flex-end",
+    flexDirection: 'row',
+    alignItems: 'flex-end',
     marginTop: 1,
   },
   bar: {
@@ -1195,17 +1192,17 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   activeBar: {
-    backgroundColor: "green",
+    backgroundColor: 'green',
   },
   inactiveBar: {
-    backgroundColor: "#ccc",
+    backgroundColor: '#ccc',
   },
 
   timer: {
-    color: "orange",
+    color: 'orange',
     fontSize: 32,
     // fontWeight: '600',
-    fontFamily: "Poppins-SemiBold",
+    fontFamily: 'Poppins-SemiBold',
   },
 });
 

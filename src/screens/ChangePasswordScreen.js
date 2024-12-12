@@ -1,5 +1,5 @@
  import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Button from "../components/Button";
 import { TextInput as PaperTextInput } from "react-native-paper";
@@ -7,8 +7,10 @@ import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 import { useIsFocused } from "@react-navigation/native";
 import CustomSnackbar from "../components/CustomSnackbar";
+import CustomHeader from "../components/CustomHeader";
+import Images from "../constants/Image";
 
-const ChangePasswordScreen = () => {
+const ChangePasswordScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -76,7 +78,17 @@ const ChangePasswordScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Change Password</Text>
+       <CustomHeader
+                leftComponent={
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={{backgroundColor:'#6D6C69', borderRadius:30, padding:5}}>
+                         <Image source={Images.back}/>
+                    </TouchableOpacity>
+                }
+                middleComponent={
+                    <Text style={{ color: 'orange', fontSize: 20, fontFamily: "Poppins-Bold", }}>Change Password</Text>
+                }
+            />
+      {/* <Text style={styles.title}>Change Password</Text> */}
       <Text style={styles.subtitle}>
         Regularly changing passwords boosts security
       </Text>
@@ -87,6 +99,8 @@ const ChangePasswordScreen = () => {
         placeholder="Enter Password"
         value={password}
         onChangeText={setPassword}
+             textColor='white'
+          placeholderTextColor="white"
         secureTextEntry={!showPassword}
         right={
           <PaperTextInput.Icon
@@ -108,6 +122,8 @@ const ChangePasswordScreen = () => {
         placeholder="Confirm Password"
         value={confirmPassword}
         onChangeText={setConfirmPassword}
+             textColor='white'
+          placeholderTextColor="white"
         secureTextEntry={!showConfirmPassword}
         right={
           <PaperTextInput.Icon
@@ -167,7 +183,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingVertical: 40,
+    paddingVertical: 20,
     backgroundColor: "#1c161b",
   },
   title: {

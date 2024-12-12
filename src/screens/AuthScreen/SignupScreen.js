@@ -1,176 +1,3 @@
-// import React, { useState } from 'react';
-// import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-// import CheckBox from '@react-native-community/checkbox';
-// import Icon from 'react-native-vector-icons/FontAwesome';
-// import Button from '../../components/Button';
-
-// const SignupScreen = ({ navigation }) => {
-//     const [fullName, setFullName] = useState('');
-//     const [email, setEmail] = useState('');
-//     const [password, setPassword] = useState('');
-//     const [confirmPassword, setConfirmPassword] = useState('');
-//     const [agreeTerms, setAgreeTerms] = useState(false);
-
-//     const handleSignup = () => {
-//         console.log('signup press')
-//         // Add signup logic here
-//     };
-
-//     return (
-//         <ScrollView contentContainerStyle={styles.container}>
-//             <Text style={styles.title}>Sign Up</Text>
-//             <View style={styles.inputContainer}>
-//                 <Text style={styles.checkboxLabel}>Full Name</Text>
-//                 <TextInput
-//                     style={styles.input}
-//                     placeholder="Enter Full Name"
-//                     placeholderTextColor="#888"
-//                     value={fullName}
-//                     onChangeText={setFullName}
-//                 />
-//                 <Text style={styles.checkboxLabel}>Email</Text>
-//                 <TextInput
-//                     style={styles.input}
-//                     placeholder="Enter Email"
-//                     placeholderTextColor="#888"
-//                     value={email}
-//                     onChangeText={setEmail}
-//                     keyboardType="email-address"
-//                 />
-//                 <Text style={styles.checkboxLabel}>Password</Text>
-//                 <TextInput
-//                     style={styles.input}
-//                     placeholder="Enter Password"
-//                     placeholderTextColor="#888"
-//                     value={password}
-//                     onChangeText={setPassword}
-//                     secureTextEntry
-//                 />
-//                  <Text style={styles.checkboxLabel}>Confirm Password</Text>
-//                 <TextInput
-//                     style={styles.input}
-//                     placeholder="Confirm Password"
-//                     placeholderTextColor="#888"
-//                     value={confirmPassword}
-//                     onChangeText={setConfirmPassword}
-//                     secureTextEntry
-//                 />
-//             </View>
-//             <View style={styles.checkboxContainer}>
-//                 <CheckBox
-//                     value={agreeTerms}
-//                     onValueChange={setAgreeTerms}
-//                     boxType="square"
-//                     tintColors={{ true: 'orange', false: '#888' }}
-//                     style={styles.checkbox}
-//                 />
-//                 <Text style={styles.checkboxLabel}>
-//                     I agree with <Text style={styles.linkText}>Terms of Service</Text> and <Text style={styles.linkText}>Privacy Policy</Text>
-//                 </Text>
-//             </View>
-//             <Button
-//                 title="Register"
-//                 onPress={handleSignup}
-//                 disabled={!agreeTerms}
-//                 style={{ backgroundColor: agreeTerms ? 'orange' : '#888' }}
-//             />
-//             {/* <TouchableOpacity
-//                 style={[styles.button, { backgroundColor: agreeTerms ? 'orange' : '#888' }]}
-//                 onPress={handleSignup}
-//                 disabled={!agreeTerms}
-//             >
-//                 <Text style={styles.buttonText}>Register</Text>
-//             </TouchableOpacity> */}
-//             <View style={styles.socialLoginContainer}>
-//                 <Text style={styles.orText}>Or sign up with</Text>
-//                 <Icon
-//                     name="google-plus-circle"
-
-//                     size={40}
-//                     color='white'
-
-//                     onPress={() => {}}
-//                 >
-
-//                 </Icon>
-//             </View>
-//             <TouchableOpacity onPress={() => navigation.navigate('LoginScreen')}>
-//                 <Text style={styles.signInText}>
-//                 Have an account? <Text style={styles.linkText}>Sign In</Text>
-//                 </Text>
-//             </TouchableOpacity>
-//         </ScrollView>
-//     );
-// };
-
-// const styles = StyleSheet.create({
-//     container: {
-//         flexGrow: 1,
-//         padding: 20,
-//         backgroundColor: '#1c161b',
-//     },
-//     title: {
-//         fontSize: 32,
-//         color: 'orange',
-//         fontWeight: 'bold',
-//         marginBottom: 20,
-//         textAlign: 'center',
-//     },
-//     inputContainer: {
-//         marginBottom: 20,
-//     },
-//     input: {
-//         backgroundColor: '#333',
-//         color: 'white',
-//         padding: 10,
-//         borderRadius: 10,
-//         marginBottom: 15,
-//         fontSize: 16,
-//     },
-//     checkboxContainer: {
-//         flexDirection: 'row',
-//         alignItems: 'center',
-//         marginBottom: 20,
-//     },
-//     checkbox: {
-//         alignSelf: 'center',
-//     },
-//     checkboxLabel: {
-//         color: 'white',
-//         fontSize: 12,
-//         // marginLeft: 10,
-//     },
-//     linkText: {
-//         color: 'orange',
-//         fontWeight: 'bold',
-//     },
-//     button: {
-//         padding: 15,
-//         borderRadius: 30,
-//         alignItems: 'center',
-//     },
-//     buttonText: {
-//         color: 'white',
-//         fontSize: 16,
-//         fontWeight: 'bold',
-//     },
-//     socialLoginContainer: {
-//         marginVertical: 20,
-//         alignItems: 'center',
-//     },
-//     orText: {
-//         color: 'white',
-//         fontSize: 14,
-//         marginBottom: 10,
-//     },
-//     signInText: {
-//         color: 'white',
-//         textAlign: 'center',
-//         marginTop: 20,
-//     },
-// });
-
-// export default SignupScreen;
 
 import React, { useState, useEffect, useCallback } from "react";
 import {
@@ -196,6 +23,8 @@ import auth from "@react-native-firebase/auth";
 import { useFocusEffect } from "@react-navigation/native";
 import CustomSnackbar from "../../components/CustomSnackbar";
 import { useIsFocused } from "@react-navigation/native";
+import FlashMessages from "../../components/FlashMessages";
+import COLORS from "../../constants/COLORS";
 
 
 const SignupScreen = ({ navigation }) => {
@@ -207,16 +36,21 @@ const SignupScreen = ({ navigation }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [falshMessage, setFlashMessage] = useState(false);
+
   const [FillFieldData, setFillFieldData] = useState(null);
   const [PasswordNotMatch, setPasswordNotMatch] = useState(null);
-  const [falshMessageData, setFlashMessageData] = useState(null);
   const [GoogleMessageData, setGoogleMessageData] = useState(null);
   const [snackbarVisible, setsnackbarVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [deviceId, setDeviceId] = useState("");
   const isFocused = useIsFocused();
-
+  const [flashMessage, setFlashMessage] = useState(false);
+  const [flashMessageData, setFlashMessageData] = useState({
+    message: "",
+    description: "",
+    type: "",
+    icon: "",
+  });
   useEffect(() => {
     const fetchDeviceId = async () => {
       try {
@@ -262,15 +96,41 @@ const SignupScreen = ({ navigation }) => {
   const handleSignup = async () => {
     console.log("signup press");
     if (email === "" || password === "" || confirmPassword === "") {
-      setFillFieldData("Please Fill All the Fields");
-      console.log("Please Fill All the Fields!");
+      setFlashMessageData({
+        message: "Error",
+        description: "Please Fill All the Fields.",
+        type: "info",
+        icon: "info",
+        backgroundColor: COLORS.red,
+        textColor: COLORS.white,
+      });
+      setFlashMessage(true);
+      setTimeout(() => {
+        setFlashMessage(false);
+      }, 2000);
       return;
+      // setFillFieldData("Please Fill All the Fields");
+      // console.log("Please Fill All the Fields!");
+      // return;
     }
 
     if (password !== confirmPassword) {
-      setPasswordNotMatch("Passwords do not match.");
-      console.log("Passwords do not match.");
+      setFlashMessageData({
+        message: "Error",
+        description: "Passwords do not match.",
+        type: "info",
+        icon: "info",
+        backgroundColor: COLORS.red,
+        textColor: COLORS.white,
+      });
+      setFlashMessage(true);
+      setTimeout(() => {
+        setFlashMessage(false);
+      }, 2000);
       return;
+      // setPasswordNotMatch("Passwords do not match.");
+      // console.log("Passwords do not match.");
+      // return;
     }
     setLoading(true);
 
@@ -292,18 +152,69 @@ const SignupScreen = ({ navigation }) => {
       });
 
       console.log("User account created & signed in!");
+      setFlashMessageData({
+        message: "Success",
+        description: "You have successfully logged in",
+        type: "success",
+        icon: "success",
+        backgroundColor: "green", // Replace with your success color
+        textColor: "white", // Replace with your text color
+      });
+      setFlashMessage(true);
+      setTimeout(() => {
+        setFlashMessage(false);
+      }, 3000);
       handleUpdatePassword();
     } catch (error) {
-      if (error.code === "auth/email-already-in-use") {
-        console.log("That email address is already in use!");
-        setFlashMessageData("That email address is already in use!");
-      } else if (error.code === "auth/invalid-email") {
-        console.log("That email address is invalid!");
-        setFlashMessageData("That email address is invalid!");
-      } else {
-        console.log("An error occurred. Please try again.");
-        setFlashMessageData("An error occurred. Please try again.");
+
+      let errorMessage = "An error occurred. Please try again."; // Default error message
+
+      // Determine the error message based on error codes
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          errorMessage = "This email address is already in use!";
+          break;
+    
+        case "auth/invalid-email":
+          errorMessage = "This email address is invalid!";
+          break;
+    
+        case "auth/too-many-requests":
+          errorMessage = "Too many attempts. Please try again later.";
+          break;
+    
+        default:
+          console.log("Unhandled error code:", error.code);
+          break;
       }
+    
+      // Set the flash message with the determined error message
+      setFlashMessageData({
+        message: "Error",
+        description: errorMessage,
+        type: "info",
+        icon: "info",
+        backgroundColor: COLORS.red,
+        textColor: COLORS.white,
+      });
+    
+      // Show the flash message
+      setFlashMessage(true);
+    
+      // Automatically hide the flash message after 2 seconds
+      setTimeout(() => {
+        setFlashMessage(false);
+      }, 2000);
+      // if (error.code === "auth/email-already-in-use") {
+      //   console.log("That email address is already in use!");
+      //   setFlashMessageData("That email address is already in use!");
+      // } else if (error.code === "auth/invalid-email") {
+      //   console.log("That email address is invalid!");
+      //   setFlashMessageData("That email address is invalid!");
+      // } else {
+      //   console.log("An error occurred. Please try again.");
+      //   setFlashMessageData("An error occurred. Please try again.");
+      // }
     } finally {
       setLoading(false);
     }
@@ -368,33 +279,73 @@ const SignupScreen = ({ navigation }) => {
         });
   
         console.log("You have successfully signed up with Google!");
-        setGoogleMessageData("You have successfully signed up with Google!");
+        setFlashMessageData({
+          message: "Success",
+          description: "You have successfully signed up with Google!",
+          type: "success",
+          icon: "success",
+          backgroundColor: "green", // Replace with your success color
+          textColor: "white", // Replace with your text color
+        });
+        setFlashMessage(true);
+        setTimeout(() => {
+          setFlashMessage(false);
+        }, 3000);
+        // setGoogleMessageData("You have successfully signed up with Google!");
       } else {
         console.log("You have successfully logged in with Google!");
-        setGoogleMessageData("You have successfully logged in with Google!");
+        setFlashMessageData({
+          message: "Welcome Back",
+          description: "You have successfully logged in with Google!",
+          type: "success",
+          icon: "success",
+          backgroundColor: "green", // Replace with your success color
+          textColor: "white", // Replace with your text color
+        });
+        setFlashMessage(true);
+        setTimeout(() => {
+          setFlashMessage(false);
+        }, 3000);
+        // setGoogleMessageData("You have successfully logged in with Google!");
       }
     } catch (error) {
       console.log("Login error: ", error);
-      let message = "An error occurred. Please try again.";
+      // let message = "An error occurred. Please try again.";
   
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        message = "Sign-in was cancelled by the user.";
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        message = "Sign-in is in progress.";
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        message = "Google Play Services is not available.";
-      } else {
-        message = `Error: you have cancle the Google auth`;
-      }
-  
-      setGoogleMessageData(message);
+      // if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+      //   message = "Sign-in was cancelled by the user.";
+      // } else if (error.code === statusCodes.IN_PROGRESS) {
+      //   message = "Sign-in is in progress.";
+      // } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+      //   message = "Google Play Services is not available.";
+      // } else {
+      //   message = `Error: you have cancle the Google auth`;
+      // }
       setErrorMessage('');
+      setFlashMessageData({
+        message: "Error",
+        description: "Something went wrong, Please try again.",
+        type: "info",
+        icon: "info",
+        backgroundColor: COLORS.red,
+        textColor: COLORS.white,
+      });
+      setFlashMessage(true);
+      setTimeout(() => {
+        setFlashMessage(false);
+      }, 2000);
+      // setGoogleMessageData(message);
+      // setErrorMessage('');
     } finally {
       setLoading(false);
     }
   };
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <View style={{alignItems:'center', paddingBottom:40}}>
+
+       <Image source={Images.Applogo} style={styles.logo} />
+      </View>
       <Text style={styles.title}>Sign Up</Text>
       <View style={styles.inputContainer}>
         <PaperTextInput
@@ -429,12 +380,14 @@ const SignupScreen = ({ navigation }) => {
           outlineColor="#888"
           activeOutlineColor="orange"
         />
-        <View style={{ marginBottom: 5, marginTop: -6 }}>
+        {/* <View style={{ marginBottom: 5, marginTop: -6 }}>
           {falshMessageData ? (
             <Text style={styles.errorText}>{falshMessageData}</Text>
           ) : null}
-        </View>
-
+        </View> */}
+        {flashMessage && (
+  <FlashMessages flashMessageData={flashMessageData} />
+)}
         <PaperTextInput
           label="Password"
           mode="outlined"
@@ -532,7 +485,7 @@ const SignupScreen = ({ navigation }) => {
           <Text style={styles.errorText}>{GoogleMessageData}</Text>
         ) : null}
       </View>
-      <View style={{ paddingTop: 70 }}></View>
+      <View style={{ paddingTop: 30 }}></View>
       <Button
         title="Register"
         onPress={handleSignup}
@@ -587,7 +540,6 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
   },
   checkbox: {
     alignSelf: "center",
@@ -616,7 +568,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 5,
     fontFamily: "Poppins-Medium",
   },
   signInText: {

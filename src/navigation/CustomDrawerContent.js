@@ -38,7 +38,7 @@ const CustomDrawerContent = (props) => {
     fetchUserData();
 
   }, [isFocused]);
-
+console.log('userDetail--------in drawer', userDetail)
 
   return (
     <DrawerContentScrollView
