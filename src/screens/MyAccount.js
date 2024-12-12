@@ -16,7 +16,7 @@ import {
 import RBSheet from "react-native-raw-bottom-sheet";
 import CustomHeader from "../components/CustomHeader";
 import Button from "../components/Button";
-
+import DeviceInfo from 'react-native-device-info';
 import { useNavigation } from "@react-navigation/native";
 import CustomModal from "../components/CustomModal";
 import Images from "../constants/Image";
@@ -42,13 +42,22 @@ const MyAccount = ({ myId = "AH_282912", myIp = "116.108.85.23" }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [copiedValue, setCopiedValue] = useState(''); 
   const [vpnData, setVpnData] = useState(null);
+  const [ipAddress, setIpAddress] = useState('');
 
   useEffect(() => {
     if (userDetail) {
       setFullName(userDetail?.name);
     }
   }, [userDetail]);
+  useEffect(() => {
+    const fetchIpAddress = async () => {
+      const ip = await DeviceInfo.getIpAddress();
+      console.log('IP--------------------', ip)
+      setIpAddress(ip);
+    };
 
+    fetchIpAddress();
+  }, []);
 
   const getStoredVpnData = async () => {
     try {
@@ -56,7 +65,7 @@ const MyAccount = ({ myId = "AH_282912", myIp = "116.108.85.23" }) => {
       if (storedVpn !== null) {
         setVpnData(JSON.parse(storedVpn) || ''); // Set the retrieved VPN data
       
-        console.log('VPN data retrieved successfully',storedVpn);
+        // console.log('VPN data retrieved successfully',storedVpn);
       }
     } catch (error) {
       console.error('Error retrieving VPN data', error);
@@ -66,7 +75,7 @@ const MyAccount = ({ myId = "AH_282912", myIp = "116.108.85.23" }) => {
   // Call the getStoredVpnData inside useEffect to load stored VPN on component mount
   useEffect(() => {
     getStoredVpnData(); // Retrieve VPN data when component mounts
-  }, [userDetail]); 
+  }, [isFocused,userDetail]); 
 
 
   useEffect(() => {
@@ -97,7 +106,7 @@ const MyAccount = ({ myId = "AH_282912", myIp = "116.108.85.23" }) => {
     }
   }, [isFocused, shouldUpdate]);
 
-  console.log("USER DATA-----------", userDetail);
+  // console.log("USER DATA-----------", userDetail);
 
   const dismissSnackbar = () => {
     setsnackbarVisible(false);
@@ -152,12 +161,20 @@ const MyAccount = ({ myId = "AH_282912", myIp = "116.108.85.23" }) => {
     console.log("User logged out");
     try {
       await auth().signOut(); // Firebase sign-out
+      removeVpnData()
       console.log("User signed out successfully");
     } catch (error) {
       console.error("Error signing out: ", error);
     }
   };
-
+  const removeVpnData = async () => {
+    try {
+      await AsyncStorage.removeItem('selectedVpndata');
+      console.log('VPN data removed successfully');
+    } catch (error) {
+      console.error('Error removing VPN data', error);
+    }
+  };
   const copyToClipboard = (value, label) => {
     Clipboard.setString(value); // Set the value to the clipboard
     console.log('value copy ', value, label)
@@ -189,10 +206,10 @@ const MyAccount = ({ myId = "AH_282912", myIp = "116.108.85.23" }) => {
         }
         middleComponent={<Text style={styles.headerTitle}>My Account</Text>}
         rightComponent={
-          <TouchableOpacity
+          <TouchableOpacity style={{ backgroundColor: "#6D6C69", borderRadius: 30, padding: 8 }}
             onPress={() => navigation.navigate("SettingStackNavigator")}
           >
-            <Image source={Images.buttonIcon} />
+            <Image source={Images.Settings} />
           </TouchableOpacity>
         }
       />
@@ -201,7 +218,7 @@ const MyAccount = ({ myId = "AH_282912", myIp = "116.108.85.23" }) => {
         visible={modalVisible}
         onClose={closeLogoutModal}
         image={Images.Logout} // Using the logout image here
-        title="Are you sure to logout?"
+        title="Are you sure to Sign Out?"
         description="" // No description needed
         onConfirm={handleLogout} // Log out when "Yes" is pressed
         onCancel={closeLogoutModal} // Close the modal when "Cancel" is pressed
@@ -245,11 +262,11 @@ const MyAccount = ({ myId = "AH_282912", myIp = "116.108.85.23" }) => {
         </>
       ) : (
         <>
-          <View style={styles.infoRow}>
-        <Text style={styles.detailText}>My IP :</Text>
-        
-      </View>
-        </>
+        <View style={styles.infoRow}>
+          <Text style={styles.detailText}>My IP :</Text>
+          <Text style={styles.detailValue}>{ipAddress}</Text>
+        </View>
+      </>
       )}
      
       <View style={styles.infoRow}>
@@ -298,7 +315,7 @@ const MyAccount = ({ myId = "AH_282912", myIp = "116.108.85.23" }) => {
       />
       <CustomSnackbar
         message="Success" 
-        messageDescription={`${copiedValue} has been copied to clipboard`}
+        messageDescription={'The IP has been copied to clipboard'}
         onDismiss={dismissSnackbar1} // Make sure this function is defined
         visible={snackbarVisible1}
       />

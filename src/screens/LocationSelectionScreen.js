@@ -406,6 +406,7 @@ import Images from '../constants/Image';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { region_url, server_url } from '../constants/baseUrls';
+import CustomHeader from '../components/CustomHeader';
 const LocationSelectionScreen = ({ navigation }) => {
     const [search, setSearch] = useState('');
     const [vpnServers, setVpnServers] = useState([]);
@@ -943,7 +944,17 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
       
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Change Location</Text>
+            <CustomHeader
+                leftComponent={
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={{backgroundColor:'#6D6C69', borderRadius:30, padding:5}}>
+                         <Image source={Images.back}/>
+                    </TouchableOpacity>
+                }
+                middleComponent={
+                    <Text style={{ color: 'orange', fontSize: 22, fontFamily: "Poppins-Bold", }}>Change Location</Text>
+                }
+            />
+            {/* <Text style={styles.title}>Change Location</Text> */}
             <View style={styles.searchContainer}>
             <Image source={Images.Search} />
           

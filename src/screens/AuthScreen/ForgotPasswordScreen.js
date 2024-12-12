@@ -101,6 +101,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from "react-native";
 import {
   TextInput as PaperTextInput,
@@ -110,6 +111,7 @@ import auth from "@react-native-firebase/auth";
 import Button from "../../components/Button";
 import CustomSnackbar from "../../components/CustomSnackbar";
 import firestore from "@react-native-firebase/firestore";
+import Images from "../../constants/Image";
 
 const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -199,7 +201,10 @@ const ForgotPasswordScreen = ({ navigation }) => {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
+    > 
+    <View style={{alignItems: 'center', paddingBottom: 40}}>
+    <Image source={Images.Applogo} style={styles.logo} />
+  </View>
       <View style={styles.content}>
         <Text style={styles.title}>Forgot Password</Text>
         <Text style={styles.subtitle}>
