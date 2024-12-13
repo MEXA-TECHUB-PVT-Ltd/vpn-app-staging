@@ -31,7 +31,7 @@ const SettingsScreen = ({ navigation }) => {
           </TouchableOpacity>
         }
         middleComponent={
-          <Text style={{ color: "orange", fontSize: 30, fontFamily: "Poppins-Bold", }}>
+          <Text style={{ color: "orange", fontSize: 22, fontFamily: "Poppins-Bold", }}>
             Setting
           </Text>
         }

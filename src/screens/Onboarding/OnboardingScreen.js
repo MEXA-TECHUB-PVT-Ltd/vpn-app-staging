@@ -350,11 +350,11 @@ const OnboardingScreen = () => {
   };
 
   const handleDone = () => {
-    navigation.navigate('LoginScreen'); // Navigate to Login screen
+    navigation.replace('LoginScreen'); // Navigate to Login screen
   };
 
   const handleSkip = () => {
-    navigation.navigate('LoginScreen'); // Navigate to Login screen
+    navigation.replace('LoginScreen'); // Navigate to Login screen
   };
 
   const renderPagination = (activeIndex) => {

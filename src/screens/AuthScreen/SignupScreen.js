@@ -321,19 +321,19 @@ const SignupScreen = ({ navigation }) => {
       // } else {
       //   message = `Error: you have cancle the Google auth`;
       // }
-      setErrorMessage('');
-      setFlashMessageData({
-        message: "Error",
-        description: "Something went wrong, Please try again.",
-        type: "info",
-        icon: "info",
-        backgroundColor: COLORS.red,
-        textColor: COLORS.white,
-      });
-      setFlashMessage(true);
-      setTimeout(() => {
-        setFlashMessage(false);
-      }, 2000);
+      // setErrorMessage('');
+      // setFlashMessageData({
+      //   message: "Error",
+      //   description: "Something went wrong, Please try again.",
+      //   type: "info",
+      //   icon: "info",
+      //   backgroundColor: COLORS.red,
+      //   textColor: COLORS.white,
+      // });
+      // setFlashMessage(true);
+      // setTimeout(() => {
+      //   setFlashMessage(false);
+      // }, 2000);
       // setGoogleMessageData(message);
       // setErrorMessage('');
     } finally {

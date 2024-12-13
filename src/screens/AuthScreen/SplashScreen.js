@@ -35,7 +35,7 @@ const SplashScreen = () => {
   return (
     <View style={styles.container}>
       {/* <ActivityIndicator size="large" color="#FF9900" /> */}
-      <Image source={Images.Applogo} style={styles.logo} />
+      {/* <Image source={Images.Applogo} style={styles.logo} /> */}
     </View>
   );
 };

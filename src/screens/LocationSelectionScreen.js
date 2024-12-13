@@ -619,11 +619,11 @@ const LocationSelectionScreen = ({ navigation }) => {
 
   // Utility to determine signal strength based on speed
   const getSignalStrength = (speed) => {
-    if (speed > 100000000) {
+    if (speed > 1000000000) {
       return 4; // Strong signal
-    } else if (speed > 50000000) { 
+    } else if (speed > 500000000) { 
       return 3; // Good signal
-    } else if (speed > 10000000) {
+    } else if (speed > 100000000) {
       return 2; // Moderate signal
     } else {
       return 1; // Weak signal
@@ -951,7 +951,7 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
                     </TouchableOpacity>
                 }
                 middleComponent={
-                    <Text style={{ color: 'orange', fontSize: 22, fontFamily: "Poppins-Bold", }}>Change Location</Text>
+                    <Text style={{ color: 'orange', fontSize: 18, fontFamily: "Poppins-Bold", }}>Change Location</Text>
                 }
             />
             {/* <Text style={styles.title}>Change Location</Text> */}
@@ -1012,7 +1012,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#333',
         borderRadius: 10,
         paddingHorizontal: 10,
-        marginBottom: 20,
+        marginBottom: 20,marginTop:20
     },
     searchIcon: {
         marginRight: 10,
