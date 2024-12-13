@@ -229,8 +229,8 @@ const HomeScreen = ({route}) => {
 
   const startConnectionAnimation = () => {
     Animated.timing(progress, {
-      toValue: 1,
-      duration: 5000, // Animation duration
+      toValue: 2,
+      duration: 10000, // Animation duration
       easing: Easing.linear,
       useNativeDriver: false,
     }).start(() => {
@@ -350,7 +350,8 @@ const HomeScreen = ({route}) => {
   const animatedInnerCircle = {
     borderColor: progress.interpolate({
       inputRange: [0, 1],
-      outputRange: ['rgba(255, 255, 255, 0.5)', '#6D6C69'],
+      outputRange: ['rgba(255, 255, 255, 0.5)', '#fcdb03'],
+      // outputRange: ['rgba(255, 255, 255, 0.5)', '#6D6C69'],
     }),
   };
   // const [location, setLocation] = useState({
@@ -1025,7 +1026,7 @@ const styles = StyleSheet.create({
   speedContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginTop: '10%',
+    marginTop: '6%',
     margin: 4,
   },
   speedBox: {
@@ -1116,7 +1117,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    marginTop: 60,
+    marginTop: 70,
     marginBottom: -50,
     zIndex: 9999,
   },
@@ -1128,7 +1129,7 @@ const styles = StyleSheet.create({
 
   outerAnimatedCircle: {
     position: 'absolute',
-    width: wp('54%'), // Adjust the width based on percentage of screen width
+    width: wp('54.5%'), // Adjust the width based on percentage of screen width
     height: hp('27%'), // Adjust the height based on percentage of screen height
     borderRadius: wp('26%'), // Border radius half of the width for a perfect circle
     borderWidth: wp('5%'), // Border width responsive to screen size
