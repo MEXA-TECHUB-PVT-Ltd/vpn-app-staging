@@ -397,7 +397,7 @@ const HomeScreen = ({route}) => {
         location: 'JP',
         signalStrength: 4,
         CountryShort: 'JP',
-        IP: '219.100.37.169',
+        IP: '219.100.37.178',
       });
 
       setSelectedVpn({
@@ -406,7 +406,7 @@ const HomeScreen = ({route}) => {
         location: 'JP',
         signalStrength: 43,
         CountryShort: 'JP',
-        IP: '219.100.37.169',
+        IP: '219.100.37.178',
         configdatafile: configData, // Using the fetched config data
       });
     };
@@ -488,7 +488,7 @@ proto tcp
 # When you use UDP protocol, the port number must same as the configuration
 # setting of "OpenVPN Server Compatible Function" on the VPN Server.
 
-remote 219.100.37.169 443
+remote 219.100.37.178 443
 
 
 ###############################################################################
@@ -869,11 +869,11 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
             {isConnected ? (
               <View style={styles.speedContainer}>
                 <View style={styles.speedBox}>
-                  <Image source={Images.arrowUP} style={{marginRight: 8}} />
+                  <Image source={Images.arrowUP} style={{marginRight: 8, height:20, width:20}} />
                   <Text style={styles.timerText}>{byteIn}</Text>
                 </View>
                 <View style={styles.speedBox}>
-                  <Image source={Images.arrowDown} style={{marginRight: 8}} />
+                  <Image source={Images.arrowDown} style={{marginRight: 8, height:20, width:20}} />
                   <Text style={styles.timerText}>{byteOut}</Text>
                 </View>
               </View>
@@ -995,7 +995,7 @@ const styles = StyleSheet.create({
   },
   timerText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Poppins-Medium',
   },
   ipText: {
@@ -1028,6 +1028,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginTop: '6%',
     margin: 4,
+    marginHorizontal:10
   },
   speedBox: {
     backgroundColor: '#FFFFFF33',

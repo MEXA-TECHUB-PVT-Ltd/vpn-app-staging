@@ -208,7 +208,8 @@ const styles = StyleSheet.create({
     color: "#ffcc00",
     marginLeft: 10,
     fontSize: 18,
-    fontWeight: "900",
+
+    fontFamily: "Poppins-Bold",
   },
 });
 

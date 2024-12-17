@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Switch,Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Switch,Image, ScrollView , Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import CustomHeader from '../components/CustomHeader';
 import Images from '../constants/Image';
@@ -17,7 +17,7 @@ const TermServices = ({ navigation }) => {
                     </TouchableOpacity>
                 }
                 middleComponent={
-                    <Text style={{ color: 'orange', fontSize: 20, fontFamily: "Poppins-Bold", }}>Term of Service</Text>
+                    <Text style={{ color: 'orange', fontSize: 18, fontFamily: "Poppins-Bold", }}>Term of Service</Text>
                 }
             />
 
@@ -26,7 +26,7 @@ const TermServices = ({ navigation }) => {
                 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
                 </Text>
             </View> */}
- <ScrollView style={styles.content}>
+ <ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
                 <Text style={styles.heading}>1. Acceptance of Terms</Text>
                 <Text style={styles.text}>
                     By using stealthlinkvpnapp (the "Service"), you agree to comply with and be bound by these Terms of Service. If you do not agree, you may not use the Service.
@@ -55,8 +55,14 @@ const TermServices = ({ navigation }) => {
 
                 <Text style={styles.heading}>6. Contact Us</Text>
                 <Text style={styles.text}>
-                    If you have any questions about these Terms, please contact us at [support email].
-                </Text>
+    If you have any questions about these Terms, please contact us at{' '}
+    <Text
+        style={{ color: '#5185f6' }}
+        onPress={() => Linking.openURL('mailto:support@example.com')}
+    >
+        support@example.com
+    </Text>.
+</Text>
             </ScrollView>
         </View>
     );
@@ -69,14 +75,13 @@ const styles = StyleSheet.create({
         paddingVertical:15,
         paddingHorizontal:15
     },
-    headerText: {
-        color: 'orange',
-        fontSize: 20,
-        fontFamily: 'Poppins-Bold',
-    },
+
     content: {
         paddingHorizontal: 10,
         paddingVertical: 15,
+    },
+    scrollContent: {
+        paddingBottom: 50, // Added padding to ensure content is not cut off
     },
     settingItem: {
         flexDirection: 'row',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Switch,Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Switch,Image, Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import CustomHeader from '../components/CustomHeader';
 import Images from '../constants/Image';
@@ -19,11 +19,11 @@ const PrivacyPolicy = ({ navigation }) => {
                     </TouchableOpacity>
                 }
                 middleComponent={
-                    <Text style={{ color: 'orange', fontSize: 22, fontFamily: "Poppins-Bold", }}>Privacy Policy</Text>
+                    <Text style={{ color: 'orange', fontSize: 18, fontFamily: "Poppins-Bold", }}>Privacy Policy</Text>
                 }
             />
 
-<ScrollView style={styles.content}>
+<ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
                 <Text style={styles.heading}>1. Introduction</Text>
                 <Text style={styles.text}>
                     Welcome to stealthlinkvpnapp. This Privacy Policy outlines the types of personal information that we collect, use, and share when you use our services.
@@ -61,8 +61,14 @@ const PrivacyPolicy = ({ navigation }) => {
 
                 <Text style={styles.heading}>8. Contact Us</Text>
                 <Text style={styles.text}>
-                    If you have any questions about this Privacy Policy, please contact us at mtech@gmail.com.
-                </Text>
+                   If you have any questions about these Terms, please contact us at{' '}
+                   <Text
+                       style={{ color: '#5185f6' }}
+                       onPress={() => Linking.openURL('mailto:support@example.com')}
+                   >
+                       support@example.com
+                   </Text>.
+               </Text>
             </ScrollView>
 
         </View>
@@ -80,6 +86,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         // paddingVertical: 5,
        
+    },
+    scrollContent: {
+        paddingBottom: 20, // Added padding to ensure content is not cut off
     },
     settingItem: {
         flexDirection: 'row',
