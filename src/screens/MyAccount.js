@@ -28,7 +28,7 @@ import CustomSnackbar from '../components/CustomSnackbar';
 import Clipboard from '@react-native-clipboard/clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const MyAccount = ({myId = 'AH_282912', myIp = '116.108.85.23'}) => {
+const MyAccount = () => {
   const navigation = useNavigation();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -322,9 +322,9 @@ const MyAccount = ({myId = 'AH_282912', myIp = '116.108.85.23'}) => {
           },
         }}>
         <Text style={styles.sheetTitle}>Change User Information</Text>
-        {FillFieldData ? (
+        {/* {FillFieldData ? (
           <Text style={styles.errorText}>{FillFieldData}</Text>
-        ) : null}
+        ) : null} */}
         <Text style={styles.Fullname}>Full Name</Text>
         <TextInput
           style={styles.input}
@@ -350,7 +350,7 @@ const MyAccount = ({myId = 'AH_282912', myIp = '116.108.85.23'}) => {
             onPress={() => refRBSheet.current.close()}
             style={styles.cancelButton}
           />
-          <Button title="Save" onPress={handleSave} style={styles.saveButton} />
+          <Button title="Save" onPress={handleSave}  loading={loading} style={styles.saveButton} />
         </View>
       </RBSheet>
     </View>

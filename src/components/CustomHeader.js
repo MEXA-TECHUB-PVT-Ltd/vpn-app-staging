@@ -24,8 +24,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         height: 60,
-        // paddingHorizontal: 15,
-       
     },
     leftContainer: {
         flex: 1,

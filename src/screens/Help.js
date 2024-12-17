@@ -195,11 +195,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 20,
     right: 15,
-    // backgroundColor: "orange",
-    // padding: 15,
-    // borderRadius: 50,
-    // justifyContent: "center",
-    // alignItems: "center",
   },
 });
 

@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, Text, Button } from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import {View, Text, Button} from 'react-native';
 import CustomDrawerContent from './src/navigation/CustomDrawerContent';
 import Animated from 'react-native-reanimated';
 import LoginScreen from './src/screens/AuthScreen/LoginScreen';
@@ -22,44 +22,54 @@ import OnboardingScreen from './src/screens/Onboarding/OnboardingScreen';
 import ChangePasswordScreen from './src/screens/ChangePasswordScreen';
 import ForgotPasswordScreen from './src/screens/AuthScreen/ForgotPasswordScreen';
 import OTPVerificationScreen from './src/screens/AuthScreen/OTPVerificationScreen';
-import auth from "@react-native-firebase/auth";
+import auth from '@react-native-firebase/auth';
 import {
   GoogleSignin,
   statusCodes,
-} from "@react-native-google-signin/google-signin";
+} from '@react-native-google-signin/google-signin';
 import GetPremiumScreen from './src/screens/GetPremiumScreen';
 import FlashMessage from 'react-native-flash-message';
 import SplashScreen from './src/screens/AuthScreen/SplashScreen';
 import TestScreen from './src/screens/TestScreen';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 // Authentication Stack (Login, Signup, etc.)
 // const AuthStack = createStackNavigator();
 
 // "react-native-reanimated": "^3.16.3",
 const AuthStack = createNativeStackNavigator();
 const AuthStackScreen = () => (
-  <AuthStack.Navigator initialRouteName="SplashScreen" screenOptions={{headerShown:false}}>
-   <AuthStack.Screen name="SplashScreen" component={SplashScreen} />
+  <AuthStack.Navigator
+    initialRouteName="SplashScreen"
+    screenOptions={{headerShown: false}}>
+    <AuthStack.Screen name="SplashScreen" component={SplashScreen} />
     <AuthStack.Screen name="OnboardingScreen" component={OnboardingScreen} />
     <AuthStack.Screen name="LoginScreen" component={LoginScreen} />
     <AuthStack.Screen name="SignupScreen" component={SignupScreen} />
-    <AuthStack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen} />
-    <AuthStack.Screen name="OTPVerificationScreen" component={OTPVerificationScreen} />
+    <AuthStack.Screen
+      name="ForgotPasswordScreen"
+      component={ForgotPasswordScreen}
+    />
+    <AuthStack.Screen
+      name="OTPVerificationScreen"
+      component={OTPVerificationScreen}
+    />
     {/* <AuthStack.Screen name="MainDrawer" component={MainDrawer} /> */}
     <AuthStack.Screen name="TermServices" component={TermServices} />
     <AuthStack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
-    
   </AuthStack.Navigator>
 );
 
 // Main App Stack (Home, Details, etc.)
 const MainStack = createNativeStackNavigator();
 const MainStackScreen = () => (
-  <MainStack.Navigator screenOptions={{headerShown:false}}>
+  <MainStack.Navigator screenOptions={{headerShown: false}}>
     <MainStack.Screen name="HomeScreen" component={HomeScreen} />
     <MainStack.Screen name="AboutScreen" component={AboutScreen} />
-    <MainStack.Screen name="LocationSelectionScreen" component={LocationSelectionScreen} />
+    <MainStack.Screen
+      name="LocationSelectionScreen"
+      component={LocationSelectionScreen}
+    />
     <MainStack.Screen name="GetPremiumScreen" component={GetPremiumScreen} />
-
   </MainStack.Navigator>
 );
 
@@ -67,42 +77,43 @@ const MainStackScreen = () => (
 const Drawer = createDrawerNavigator();
 const MainDrawer = () => (
   // <Drawer.Navigator>
-    //  <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
-    <Drawer.Navigator
-    drawerContent={(props) => <CustomDrawerContent {...props} />}
+  //  <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
+  <Drawer.Navigator
+    drawerContent={props => <CustomDrawerContent {...props} />}
     screenOptions={{
       drawerStyle: {
         backgroundColor: '#ffa500', // Gradient-like color similar to your image
         width: 300,
       },
-      headerShown:false,
+      headerShown: false,
       drawerType: 'slide', // Drawer slides over the content
       overlayColor: 'transparent', // Transparent background during the slide
-    }}
-  >
+    }}>
     <Drawer.Screen name="MainStackScreen" component={MainStackScreen} />
     <Drawer.Screen name="MyAccount" component={MyAccount} />
-    <Drawer.Screen name="SettingStackNavigator" component={SettingStackNavigator} />
+    <Drawer.Screen
+      name="SettingStackNavigator"
+      component={SettingStackNavigator}
+    />
     {/* <Drawer.Screen name="SettingsScreen" component={SettingsScreen} /> */}
     <Drawer.Screen name="Help" component={HelpStackNavigator} />
   </Drawer.Navigator>
 );
-
 
 const HelpStack = createNativeStackNavigator();
 
 const HelpStackNavigator = () => {
   return (
     <HelpStack.Navigator initialRouteName="HelpScreen">
-      <HelpStack.Screen 
-        name="HelpScreen" 
-        component={Help} 
-        options={{ headerShown: false }} // Assuming you have a custom header
+      <HelpStack.Screen
+        name="HelpScreen"
+        component={Help}
+        options={{headerShown: false}} // Assuming you have a custom header
       />
-      <HelpStack.Screen 
-        name="HelpDetailScreen" 
-        component={HelpDetailScreen} 
-        options={{ headerShown: false }} // Custom header for HelpScreenDetails
+      <HelpStack.Screen
+        name="HelpDetailScreen"
+        component={HelpDetailScreen}
+        options={{headerShown: false}} // Custom header for HelpScreenDetails
       />
     </HelpStack.Navigator>
   );
@@ -112,35 +123,35 @@ const SettingStack = createNativeStackNavigator();
 const SettingStackNavigator = () => {
   return (
     <SettingStack.Navigator>
-      <SettingStack.Screen 
-        name="SettingsScreen" 
-        component={SettingsScreen} 
-        options={{ headerShown: false }} // Assuming you have a custom header
+      <SettingStack.Screen
+        name="SettingsScreen"
+        component={SettingsScreen}
+        options={{headerShown: false}} // Assuming you have a custom header
       />
-      <SettingStack.Screen 
-        name="TestScreen" 
-        component={TestScreen} 
-        options={{ headerShown: false }} // Assuming you have a custom header
+      <SettingStack.Screen
+        name="TestScreen"
+        component={TestScreen}
+        options={{headerShown: false}} // Assuming you have a custom header
       />
-      <SettingStack.Screen 
-        name="PrivacyPolicy" 
-        component={PrivacyPolicy} 
-        options={{ headerShown: false }} // Custom header for HelpScreenDetails
+      <SettingStack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicy}
+        options={{headerShown: false}} // Custom header for HelpScreenDetails
       />
-      <SettingStack.Screen 
-        name="TermServices" 
-        component={TermServices} 
-        options={{ headerShown: false }} // Custom header for HelpScreenDetails
+      <SettingStack.Screen
+        name="TermServices"
+        component={TermServices}
+        options={{headerShown: false}} // Custom header for HelpScreenDetails
       />
-      <SettingStack.Screen 
-        name="AboutApp" 
-        component={AboutApp} 
-        options={{ headerShown: false }} // Custom header for HelpScreenDetails
+      <SettingStack.Screen
+        name="AboutApp"
+        component={AboutApp}
+        options={{headerShown: false}} // Custom header for HelpScreenDetails
       />
-      <SettingStack.Screen 
-        name="ChangePasswordScreen" 
-        component={ChangePasswordScreen} 
-        options={{ headerShown: false }} // Custom header for HelpScreenDetails
+      <SettingStack.Screen
+        name="ChangePasswordScreen"
+        component={ChangePasswordScreen}
+        options={{headerShown: false}} // Custom header for HelpScreenDetails
       />
     </SettingStack.Navigator>
   );
@@ -151,7 +162,7 @@ const App = () => {
 
   GoogleSignin.configure({
     webClientId:
-      "69377085199-1o9q6cmm27hb6l0810oujabd10mepn38.apps.googleusercontent.com",
+      '69377085199-1o9q6cmm27hb6l0810oujabd10mepn38.apps.googleusercontent.com',
   });
 
   // Set an initializing state whilst Firebase connects
@@ -169,16 +180,15 @@ const App = () => {
     return subscriber; // unsubscribe on unmount
   }, []);
 
-
-
   if (initializing) return null;
 
-
   return (
-    <NavigationContainer>
-      {user ? <MainDrawer /> : <AuthStackScreen />}
-          <FlashMessage position="top" />
-    </NavigationContainer>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <NavigationContainer>
+        {user ? <MainDrawer /> : <AuthStackScreen />}
+        <FlashMessage position="top" />
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 };
 
