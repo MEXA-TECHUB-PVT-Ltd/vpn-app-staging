@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   View,
   Text,
@@ -6,32 +6,31 @@ import {
   StyleSheet,
   Switch,
   Image,
-} from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import CustomHeader from "../components/CustomHeader";
-import Images from "../constants/Image";
+} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import CustomHeader from '../components/CustomHeader';
+import Images from '../constants/Image';
 
-const SettingsScreen = ({ navigation }) => {
+const SettingsScreen = ({navigation}) => {
   const [isNotificationEnabled, setIsNotificationEnabled] =
     React.useState(false);
 
   const toggleSwitch = () =>
-    setIsNotificationEnabled((previousState) => !previousState);
+    setIsNotificationEnabled(previousState => !previousState);
 
   return (
     <View style={styles.container}>
       <CustomHeader
         leftComponent={
           <TouchableOpacity
-            // onPress={() => navigation.openDrawer()}
-            onPress={() => navigation.toggleDrawer()} 
-            style={{ backgroundColor: "#6D6C69", borderRadius: 30, padding: 8 }}
-          >
-             <Image source={Images.DrawerMenu} />
+            onPress={() => navigation.toggleDrawer()}
+            style={{backgroundColor: '#6D6C69', borderRadius: 30, padding: 8}}>
+            <Image source={Images.DrawerMenu} />
           </TouchableOpacity>
         }
         middleComponent={
-          <Text style={{ color: "orange", fontSize: 22, fontFamily: "Poppins-Bold", }}>
+          <Text
+            style={{color: 'orange', fontSize: 22, fontFamily: 'Poppins-Bold'}}>
             Setting
           </Text>
         }
@@ -41,8 +40,8 @@ const SettingsScreen = ({ navigation }) => {
         <View style={styles.settingItem}>
           <Text style={styles.settingText}>Notification</Text>
           <Switch
-            trackColor={{ false: "#767577", true: "orange" }}
-            thumbColor={isNotificationEnabled ? "#fff" : "#f4f3f4"}
+            trackColor={{false: '#767577', true: 'orange'}}
+            thumbColor={isNotificationEnabled ? '#fff' : '#f4f3f4'}
             onValueChange={toggleSwitch}
             value={isNotificationEnabled}
           />
@@ -50,37 +49,36 @@ const SettingsScreen = ({ navigation }) => {
 
         <TouchableOpacity
           style={styles.settingItem}
-          onPress={() => navigation.navigate("TermServices")}
-        >
+          onPress={() => navigation.navigate('TermServices')}>
           <Text style={styles.settingText}>Term of Service</Text>
           <Icon name="keyboard-arrow-right" size={24} color="#DBD6CE" />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.settingItem}
-          onPress={() => navigation.navigate("PrivacyPolicy")}
-        >
+          onPress={() => navigation.navigate('TestScreen')}>
+          <Text style={styles.settingText}>TestingScreen</Text>
+          <Icon name="keyboard-arrow-right" size={24} color="#DBD6CE" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.settingItem}
+          onPress={() => navigation.navigate('PrivacyPolicy')}>
           <Text style={styles.settingText}>Privacy Policy</Text>
           <Icon name="keyboard-arrow-right" size={24} color="#DBD6CE" />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.settingItem}
-          onPress={() => navigation.navigate("AboutApp")}
-        >
+          onPress={() => navigation.navigate('AboutApp')}>
           <Text style={styles.settingText}>About App</Text>
           <Icon name="keyboard-arrow-right" size={24} color="#DBD6CE" />
         </TouchableOpacity>
-
-        {/* <View style={styles.dottedBox}>
-              
-                </View> */}
       </View>
-      <View style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
+      <View style={{position: 'absolute', bottom: 0, left: 0, right: 0}}>
         <TouchableOpacity
           style={styles.changePasswordButton}
-          onPress={() => navigation.navigate("ChangePasswordScreen")}
-        >
+          onPress={() => navigation.navigate('ChangePasswordScreen')}>
           <Text style={styles.changePasswordText}>Change Password</Text>
         </TouchableOpacity>
       </View>
@@ -91,48 +89,48 @@ const SettingsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1c161b",
-    paddingVertical:15,
-    paddingHorizontal:15
+    backgroundColor: '#1c161b',
+    paddingVertical: 15,
+    paddingHorizontal: 15,
   },
   content: {
     paddingHorizontal: 5,
     paddingVertical: 20,
   },
   settingItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 20,
   },
   settingText: {
-    color: "#DBD6CE",
+    color: '#DBD6CE',
     fontSize: 16,
-    fontFamily: "Poppins-Medium", 
+    fontFamily: 'Poppins-Medium',
   },
   dottedBox: {
     borderWidth: 1,
-    borderColor: "#fff",
+    borderColor: '#fff',
     borderRadius: 5,
-    borderStyle: "dashed",
+    borderStyle: 'dashed',
     height: 100,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginVertical: 30,
   },
   changePasswordButton: {
-    backgroundColor: "orange",
+    backgroundColor: 'orange',
     padding: 10,
     borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     marginHorizontal: 20,
     marginBottom: 30,
   },
   changePasswordText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
-    fontFamily: "Poppins-Bold",
+    fontFamily: 'Poppins-Bold',
   },
 });
 

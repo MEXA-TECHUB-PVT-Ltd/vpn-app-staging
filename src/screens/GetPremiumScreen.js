@@ -54,11 +54,19 @@ const GetPremiumScreen = ({ navigation }) => {
         <Text style={styles.priceText}>{item.price}</Text>
       </View>
       <View
+      style={[
+        styles.radioCircle,
+        selectedPlan === item.period && styles.selectedRadioCircle,
+      ]}
+    >
+      {selectedPlan === item.period && <View style={styles.innerCircle} />}
+    </View>
+      {/* <View
         style={[
           styles.radioCircle,
-          selectedPlan === item.id && styles.selectedRadioCircle,
+          selectedPlan === item.period  && styles.selectedRadioCircle,
         ]}
-      />
+      /> */}
     </TouchableOpacity>
   );
 
@@ -150,37 +158,60 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   selectedPlanContainer: {
-    borderColor: "gray",
+    borderColor: "#a8a8a8",
     // backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   planDetails: {
     flexDirection: "row",
     justifyContent: "space-between",
     flex: 1,
+alignItems:'center',
     marginRight: 6,
   },
   periodText: {
     fontSize: 16,
     color: "#292929",
     fontFamily: "Poppins-SemiBold",
+    textAlign:'center'
   },
   priceText: {
     fontSize: 16,
     color: "#FFC700",
     fontFamily: "Poppins-SemiBold",
+    textAlign:'center'
   },
   radioCircle: {
     width: 24,
     height: 24,
-    borderRadius: 12,
+    borderRadius: 12,  // Circle
     borderWidth: 2,
-    borderColor: "#DBD6CE",
-    alignSelf: "center",
+    borderColor: '#DBD6CE', // Default border color
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   selectedRadioCircle: {
-    borderColor: "#DBD6CE",
-    backgroundColor: "#FF9900",
+    backgroundColor: '#FF9900',  // Filled color
+    borderColor: '#FF9900',      // Border color to match filled color
   },
+  innerCircle: {
+    width: 11,
+    height: 11,
+    borderRadius: 6,
+    backgroundColor: '#FFFFFF', // White dot in the center
+  },
+  // radioCircle: {
+  //   width: 24,
+  //   height: 24,
+  //   borderRadius: 12,
+  //   borderWidth: 2,
+  //   borderColor: "#DBD6CE",
+  //   alignSelf: "center",
+  // },
+  // selectedRadioCircle: {
+  //   borderColor: "#DBD6CE",
+  //   backgroundColor: "#FF9900",
+  // },
   button: {
     position: "absolute",
     bottom: 0,

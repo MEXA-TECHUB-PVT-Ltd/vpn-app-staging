@@ -131,8 +131,6 @@
 //   }
 // });
 
-
-
 // import React, { useState } from "react";
 // import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 // import { useNavigation } from "@react-navigation/native";
@@ -302,12 +300,10 @@
 
 // export default OnboardingScreen;
 
-
-
-import React,{useRef} from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, {useRef} from 'react';
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import AppIntroSlider from 'react-native-app-intro-slider';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 const OnboardingScreen = () => {
   const navigation = useNavigation();
@@ -317,7 +313,7 @@ const OnboardingScreen = () => {
       key: '1',
       title: 'Connect in One Tap',
       text: 'Set up and connect effortlessly with a user-friendly interface.',
-      image: require('../../assets/images/CupStar.png'), // Replace with your own images
+      image: require('../../assets/images/CupStar.png'), 
     },
     {
       key: '2',
@@ -339,7 +335,7 @@ const OnboardingScreen = () => {
     },
   ];
 
-  const renderSlide = ({ item }) => {
+  const renderSlide = ({item}) => {
     return (
       <View style={styles.slide}>
         <Image source={item.image} style={styles.image} resizeMode="contain" />
@@ -357,7 +353,7 @@ const OnboardingScreen = () => {
     navigation.replace('LoginScreen'); // Navigate to Login screen
   };
 
-  const renderPagination = (activeIndex) => {
+  const renderPagination = activeIndex => {
     return (
       <View style={styles.paginationContainer}>
         {/* Dots Section */}
@@ -365,10 +361,7 @@ const OnboardingScreen = () => {
           {slides.map((_, index) => (
             <View
               key={index}
-              style={[
-                styles.dot,
-                activeIndex === index && styles.activeDot,
-              ]}
+              style={[styles.dot, activeIndex === index && styles.activeDot]}
             />
           ))}
         </View>
@@ -376,7 +369,11 @@ const OnboardingScreen = () => {
         {/* Button Section */}
         <View style={styles.buttonContainer}>
           {activeIndex !== slides.length - 1 ? (
-            <TouchableOpacity style={styles.nextButton}  onPress={() => sliderRef.current.goToSlide(activeIndex + 1, true)}>
+            <TouchableOpacity
+              style={styles.nextButton}
+              onPress={() =>
+                sliderRef.current.goToSlide(activeIndex + 1, true)
+              }>
               <Text style={styles.buttonText}>Next</Text>
             </TouchableOpacity>
           ) : (
@@ -387,31 +384,23 @@ const OnboardingScreen = () => {
         </View>
 
         {/* Skip Button Section */}
-        
-          <TouchableOpacity onPress={handleSkip}>
-            <Text style={styles.skipText}>Skip</Text>
-          </TouchableOpacity>
-        
+
+        <TouchableOpacity onPress={handleSkip}>
+          <Text style={styles.skipText}>Skip</Text>
+        </TouchableOpacity>
       </View>
     );
   };
 
   return (
     <AppIntroSlider
-  ref={sliderRef}
-  renderItem={renderSlide}
-  data={slides}
-  renderPagination={renderPagination}
-  onDone={handleDone}
-  showSkipButton={false} // Handled in custom renderPagination
-/>
-    // <AppIntroSlider
-    //   renderItem={renderSlide}
-    //   data={slides}
-    //   renderPagination={renderPagination}
-    //   onDone={handleDone}
-    //   showSkipButton={false} // Handled in custom renderPagination
-    // />
+      ref={sliderRef}
+      renderItem={renderSlide}
+      data={slides}
+      renderPagination={renderPagination}
+      onDone={handleDone}
+      showSkipButton={false}
+    />
   );
 };
 
@@ -421,7 +410,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#1e1e1e',
-    paddingHorizontal:10
+    paddingHorizontal: 10,
   },
   image: {
     width: 250,
@@ -445,7 +434,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 30,
     backgroundColor: '#1e1e1e',
-    
   },
   dotsContainer: {
     flexDirection: 'row',
@@ -459,12 +447,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     opacity: 0.4,
     marginHorizontal: 5,
-    marginBottom:20
+    marginBottom: 20,
   },
   activeDot: {
     opacity: 1,
     backgroundColor: '#FF9900',
-    width:'8%'
+    width: '8%',
   },
   buttonContainer: {
     alignItems: 'center',
@@ -477,13 +465,12 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     width: '90%',
     alignItems: 'center',
-    
   },
   buttonText: {
     fontSize: 16,
     color: '#FFFFFF',
     // fontWeight: 'bold',
-     fontFamily: 'Poppins-Bold',
+    fontFamily: 'Poppins-Bold',
   },
   skipText: {
     color: '#FFFFFF',

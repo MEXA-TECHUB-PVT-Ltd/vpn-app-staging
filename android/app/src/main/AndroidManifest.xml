@@ -29,7 +29,7 @@
       android:allowBackup="false"
       android:theme="@style/AppTheme"
       android:supportsRtl="true"
-    
+
       >
       
 

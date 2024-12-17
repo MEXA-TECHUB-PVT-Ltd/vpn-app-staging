@@ -12,7 +12,6 @@ import Button from '../../components/Button';
 import Images from '../../constants/Image';
 import CustomSnackbar from '../../components/CustomSnackbar';
 import {useIsFocused} from '@react-navigation/native';
-import {firebase} from '@react-native-firebase/app';
 import auth from '@react-native-firebase/auth';
 import {
   GoogleSignin,
@@ -24,19 +23,13 @@ import FlashMessages from '../../components/FlashMessages';
 import COLORS from '../../constants/COLORS';
 
 const LoginScreen = ({navigation}) => {
-  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [FillFieldData, setFillFieldData] = useState(null);
-  const [PasswordNotMatch, setPasswordNotMatch] = useState(null);
-
-  const [errorMessage, setErrorMessage] = useState('');
   const [snackbarVisible, setsnackbarVisible] = useState(false);
-  const [GoogleMessageData, setGoogleMessageData] = useState('');
+
   const isFocused = useIsFocused();
   const [flashMessage, setFlashMessage] = useState(false);
   const [flashMessageData, setFlashMessageData] = useState({
@@ -64,7 +57,7 @@ const LoginScreen = ({navigation}) => {
     };
 
     fetchDeviceId();
-  }, []); // Dependency array
+  }, []);
 
   useEffect(() => {
     console.log('test');
@@ -100,56 +93,43 @@ const LoginScreen = ({navigation}) => {
   }, [email]);
 
   useEffect(() => {
-    console.log('call');
   }, [isFocused]);
 
   const validateEmail = email => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
-
+  const showFlashMessage = (message, description, type, backgroundColor) => {
+    setFlashMessageData({
+      message,
+      description,
+      type,
+      icon: type,
+      backgroundColor,
+      textColor: 'white',
+    });
+    setFlashMessage(true);
+    setTimeout(() => setFlashMessage(false), 2000);
+  };
   const handleSignin = async () => {
-    // Reset error message
-    setErrorMessage('');
-    setGoogleMessageData('');
-    // Validation checks
     if (!email || !password) {
-      setFlashMessageData({
-        message: 'Error',
-        description: 'Please provide both email and password.',
-        type: 'info',
-        icon: 'info',
-        backgroundColor: COLORS.red,
-        textColor: COLORS.white,
-      });
-      setFlashMessage(true);
-      setTimeout(() => {
-        setFlashMessage(false);
-      }, 2000);
+      showFlashMessage(
+        'Error',
+        'Please provide both email and password.',
+        'info',
+        COLORS.red,
+      );
       return;
-      // setErrorMessage('Please fill in both email and password.');
-      // setGoogleMessageData('')
-      // return;
     }
 
     if (!validateEmail(email)) {
-      setFlashMessageData({
-        message: 'Error',
-        description: 'Please enter a valid email address.',
-        type: 'info',
-        icon: 'info',
-        backgroundColor: COLORS.red,
-        textColor: COLORS.white,
-      });
-      setFlashMessage(true);
-      setTimeout(() => {
-        setFlashMessage(false);
-      }, 2000);
+      showFlashMessage(
+        'Error',
+        'Please enter a valid email address.',
+        'info',
+        COLORS.red,
+      );
       return;
-      // setError
-      // setErrorMessage('Please enter a valid email address.');
-      // setGoogleMessageData('')
-      // return;
     }
 
     // Attempt login
@@ -159,26 +139,15 @@ const LoginScreen = ({navigation}) => {
         email,
         password,
       );
+     
       handleUpdatePassword();
-      setGoogleMessageData('');
       console.log('User logged in:', userCredential.user);
-      setFlashMessageData({
-        message: 'Success',
-        description: 'You have successfully logged in',
-        type: 'success',
-        icon: 'success',
-        backgroundColor: 'green', // Replace with your success color
-        textColor: 'white', // Replace with your text color
-      });
-      setFlashMessage(true);
-      setTimeout(() => {
-        setFlashMessage(false);
-      }, 3000);
-      // Update the password in Firestore (ensure usersData.id is available)
-      // await firestore().collection("users").doc(usersData.id).update({
-      //   password: password,
-      // });
-
+      showFlashMessage(
+        'Success',
+        'You have successfully logged in.',
+        'success',
+        'green',
+      );
       if (usersData?.id) {
         await firestore().collection('users').doc(usersData.id).update({
           password: password, // Updating the password field in Firestore
@@ -188,59 +157,54 @@ const LoginScreen = ({navigation}) => {
         console.error('User ID not available to update Firestore');
       }
     } catch (error) {
-      console.log('Login error: ', error);
-      let errorMessage = 'Too many attempts. Please try again later.'; // Default message
-      switch (error.code) {
-        case 'auth/user-not-found':
-          errorMessage = 'No account found with this email.';
-          break;
-        case 'auth/invalid-credential':
-          errorMessage = 'Invalid credentials.';
-          break;
-        case 'auth/invalid-login':
-          errorMessage = 'Invalid credentials. Please try again.';
-          break;
-        case 'auth/wrong-password':
-          errorMessage = 'Invalid credentials. Please try again.';
-          break;
-        case 'auth/invalid-email':
-          errorMessage = 'The email address is not valid.';
-          break;
-        case 'auth/too-many-requests':
-          errorMessage = 'Too many attempts. Please try again later.';
-          break;
-      }
-
-      // Set the flash message state
-      setFlashMessageData({
-        message: 'Error',
-        description: errorMessage,
-        type: 'info',
-        icon: 'info',
-        backgroundColor: COLORS.red,
-        textColor: COLORS.white,
-      });
-      setFlashMessage(true);
-      setTimeout(() => {
-        setFlashMessage(false);
-      }, 2000);
-      // Handle Firebase authentication errors
-      // if (error.code === 'auth/user-not-found') {
-      //   setErrorMessage('No account found with this email.');
-      // } else if (error.code === 'auth/invalid-credential') {
-      //   setErrorMessage('Invalid credentials');
-      // } else if (error.code === 'auth/invalid-login') {
-      //   setErrorMessage('Invalid credentials. Please try again.');
-      // } else if (error.code === 'auth/wrong-password') {
-      //   setErrorMessage('Invalid credentials, Please try again.');
-      // } else if (error.code === 'auth/invalid-email') {
-      //   setErrorMessage('The email address is not valid.');
-      // } else if (error.code === 'auth/too-many-requests') {
-      //   setErrorMessage('Too many attempts. Please try again later.');
-      // } else {
-      //   setErrorMessage('An error occurred. Please try again.');
+      console.log('error-------------', error)
+      const errorMessages = {
+        'auth/invalid-credential': 'Invalid credentials.',
+        'auth/user-not-found': 'No account found with this email.',
+        'auth/invalid-login': 'Invalid credentials. Please try again.',
+        'auth/wrong-password': 'Invalid credentials. Please try again.',
+        'auth/too-many-requests': 'Too many attempts. Please try again later.',
+        'auth/invalid-email': 'The email address is not valid.',
+      };
+      const errorMessage =
+        errorMessages[error.code] || 'Something Went Wrong. Please try again.';
+      showFlashMessage('Error', errorMessage, 'info', COLORS.red);
+      // console.log('Login error: ', error);
+      // let errorMessage = 'Too many attempts. Please try again later.'; // Default message
+      // switch (error.code) {
+      //   case 'auth/user-not-found':
+      //     errorMessage = 'No account found with this email.';
+      //     break;
+      //   case 'auth/invalid-credential':
+      //     errorMessage = 'Invalid credentials.';
+      //     break;
+      //   case 'auth/invalid-login':
+      //     errorMessage = 'Invalid credentials. Please try again.';
+      //     break;
+      //   case 'auth/wrong-password':
+      //     errorMessage = 'Invalid credentials. Please try again.';
+      //     break;
+      //   case 'auth/invalid-email':
+      //     errorMessage = 'The email address is not valid.';
+      //     break;
+      //   case 'auth/too-many-requests':
+      //     errorMessage = 'Too many attempts. Please try again later.';
+      //     break;
       // }
-      // setGoogleMessageData('')
+
+      // // Set the flash message state
+      // setFlashMessageData({
+      //   message: 'Error',
+      //   description: errorMessage,
+      //   type: 'info',
+      //   icon: 'info',
+      //   backgroundColor: COLORS.red,
+      //   textColor: COLORS.white,
+      // });
+      // setFlashMessage(true);
+      // setTimeout(() => {
+      //   setFlashMessage(false);
+      // }, 2000);
     } finally {
       setLoading(false);
     }
@@ -259,26 +223,17 @@ const LoginScreen = ({navigation}) => {
   const onGoogleButtonPress = async () => {
     setLoading(true);
     try {
-      // Configure Google Sign-In
-      // GoogleSignin.configure({
-      //   webClientId: '69377085199-1o9q6cmm27hb6l0810oujabd10mepn38.apps.googleusercontent.com',
-      // });
-
       // Sign out of any previous Google account
       await GoogleSignin.signOut();
-
       // Check if the device supports Google Play services
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
-
       // Attempt to sign in and get user information
       const userInfo = await GoogleSignin.signIn();
       console.log('Google Sign-In successful. User Info:', userInfo);
-
       // Extract the idToken
       const {idToken} = userInfo.data; // Updated to access idToken correctly
-
       // Check if the idToken is available
       if (!idToken) {
         throw new Error('Google Sign-In failed: No idToken returned.');
@@ -286,15 +241,13 @@ const LoginScreen = ({navigation}) => {
       console.log('user idToken haiii-------------', idToken);
       // Create a Google credential with the token
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
       // Sign-in the user with the credential
       const userCredential = await auth().signInWithCredential(
         googleCredential,
       );
       // console.log("You have successfully signed in with Google!", userCredential);
-
       // Get user details
-      setErrorMessage('');
+
       const userDetail = userCredential.user.toJSON();
       console.log('user detail haiiiiiiiiiiii', userDetail);
       const userId = userDetail.uid;
@@ -315,38 +268,23 @@ const LoginScreen = ({navigation}) => {
           image: '',
           purchasedServersList: [],
         });
-
+        showFlashMessage(
+          'Success',
+          'You have successfully signed up with Google!',
+          'success',
+          'green',
+        );
         console.log('You have successfully signed up with Google!');
-        setFlashMessageData({
-          message: 'Success',
-          description: 'You have successfully signed up with Google!',
-          type: 'success',
-          icon: 'success',
-          backgroundColor: 'green', // Replace with your success color
-          textColor: 'white', // Replace with your text color
-        });
-        setFlashMessage(true);
-        setTimeout(() => {
-          setFlashMessage(false);
-        }, 3000);
-        // setGoogleMessageData("You have successfully signed up with Google!");
       } else {
-        setFlashMessageData({
-          message: 'Welcome Back',
-          description: 'You have successfully logged in with Google!',
-          type: 'success',
-          icon: 'success',
-          backgroundColor: 'green', // Replace with your success color
-          textColor: 'white', // Replace with your text color
-        });
-        setFlashMessage(true);
-        setTimeout(() => {
-          setFlashMessage(false);
-        }, 3000);
-        console.log('You have successfully logged in with Google!');
-        // setGoogleMessageData("You have successfully logged in with Google!");
+        showFlashMessage(
+          'Welcome Back',
+          'You have successfully logged in with Google!',
+          'success',
+          'green',
+        );
       }
     } catch (error) {
+      console.log('Google Sign-In error:', error);
       // console.log("Login error: ", error);
       // let message = "An error occurred. Please try again.";
 
@@ -359,7 +297,7 @@ const LoginScreen = ({navigation}) => {
       // } else {
       //   message = `Error: you have cancle the Google auth`;
       // }
-      // setErrorMessage('');
+
       // setFlashMessageData({
       //   message: 'Error',
       //   description: 'Something went wrong, Please try again.',
@@ -373,8 +311,6 @@ const LoginScreen = ({navigation}) => {
       //   setFlashMessage(false);
       // }, 2000);
       return;
-      // setGoogleMessageData(message);
-      // setErrorMessage('');
     } finally {
       setLoading(false);
     }
@@ -392,10 +328,12 @@ const LoginScreen = ({navigation}) => {
           mode="outlined"
           placeholder="Enter Email"
           value={email}
-          onChangeText={setEmail}
+          // onChangeText={setEmail}
+          onChangeText={text => setEmail(text.trim())}
           keyboardType="email-address"
           textColor="white"
           placeholderTextColor="white"
+          autoCapitalize="none"
           theme={{
             colors: {
               primary: 'orange',
@@ -416,7 +354,7 @@ const LoginScreen = ({navigation}) => {
           onChangeText={setPassword}
           textColor="white"
           placeholderTextColor="white"
-          secureTextEntry={!showPassword} // Toggles password visibility
+          secureTextEntry={!showPassword}
           theme={{
             colors: {
               primary: 'orange',
@@ -441,15 +379,7 @@ const LoginScreen = ({navigation}) => {
         onPress={() => navigation.navigate('ForgotPasswordScreen')}>
         <Text style={styles.forgetPasswordText}>Forgot Password?</Text>
       </TouchableOpacity>
-      {errorMessage ? (
-        <Text style={styles.errorText}>{errorMessage}</Text>
-      ) : null}
-
-      <View style={{marginVertical: 10}}>
-        {GoogleMessageData ? (
-          <Text style={styles.errorText}>{GoogleMessageData}</Text>
-        ) : null}
-      </View>
+   
       <View style={{paddingTop: 100}}>
         <Button
           title="Login"
@@ -475,7 +405,7 @@ const LoginScreen = ({navigation}) => {
       <CustomSnackbar
         message="Success"
         messageDescription="User logged in successfully"
-        onDismiss={dismissSnackbar} // Make sure this function is defined
+        onDismiss={dismissSnackbar}
         visible={snackbarVisible}
       />
     </ScrollView>
@@ -532,7 +462,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
   },
   linkText: {
-    color: '#FE8C00', // Or whatever color you prefer for the link
+    color: '#FE8C00',
     textAlign: 'center',
     fontFamily: 'Poppins-SemiBold',
   },

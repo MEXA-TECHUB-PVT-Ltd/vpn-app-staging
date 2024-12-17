@@ -6,11 +6,6 @@ import {
   Animated,
   TouchableOpacity,
 } from "react-native";
-
-// import CheckSnackBar from "./svg/CheckSnackBar.svg";
-
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
