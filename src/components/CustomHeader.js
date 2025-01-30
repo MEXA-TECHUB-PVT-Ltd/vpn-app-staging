@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
 
-const CustomHeader = ({ leftComponent, middleComponent, rightComponent }) => {
+const CustomHeader = ({ leftComponent, middleComponent, rightComponent,subscriptionComponent }) => {
     return (
         <View style={styles.headerContainer}>
             <View style={styles.leftContainer}>
@@ -10,6 +10,9 @@ const CustomHeader = ({ leftComponent, middleComponent, rightComponent }) => {
             </View>
             <View style={styles.middleContainer}>
                 {middleComponent && middleComponent}
+            </View>
+            <View style={styles.SubscriptionContainer}>
+                {subscriptionComponent && subscriptionComponent}
             </View>
             <View style={styles.rightContainer}>
                 {rightComponent && rightComponent}
@@ -30,7 +33,7 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
     },
     middleContainer: {
-        flex: 2,
+        flex: 2.6,
         alignItems: 'center',
     },
     rightContainer: {
