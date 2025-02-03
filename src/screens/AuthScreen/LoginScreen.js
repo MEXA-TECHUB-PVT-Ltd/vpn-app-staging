@@ -391,7 +391,7 @@ const LoginScreen = ({navigation}) => {
         <View style={styles.socialLoginContainer}>
           <Text style={styles.orText}>Or sign in with</Text>
           <TouchableOpacity onPress={() => onGoogleButtonPress()}>
-            <Image source={Images.Google} />
+            <Image source={Images.Google} style={{height:40, width:40}} />
           </TouchableOpacity>
         </View>
 
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    color: '#FE8C00',
+    color:COLORS.primary,
     fontFamily: 'Poppins-Bold',
     marginBottom: 20,
     textAlign: 'center',
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   forgetPasswordText: {
-    color: '#FE8C00',
+    color: COLORS.primary,
     fontSize: 12,
     textAlign: 'right',
     fontFamily: 'Poppins-Medium',
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
   },
   linkText: {
-    color: '#FE8C00',
+    color: COLORS.primary,
     textAlign: 'center',
     fontFamily: 'Poppins-SemiBold',
   },

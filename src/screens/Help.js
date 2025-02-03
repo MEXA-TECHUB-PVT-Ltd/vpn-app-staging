@@ -12,7 +12,8 @@ import {
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CustomHeader from "../components/CustomHeader";
 import Images from "../constants/Image";
-
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import COLORS from '../constants/COLORS';
 const questions = [
   {
     id: "1",
@@ -107,9 +108,10 @@ const Help = ({ navigation }) => {
           <TouchableOpacity
             // onPress={() => navigation.openDrawer()}
             onPress={() => navigation.toggleDrawer()} 
-            style={{ backgroundColor: "#6D6C69", borderRadius: 30, padding: 8 }}
+            style={{ backgroundColor: "#6D6C69", borderRadius: 30, padding: 5 }}
           >
-            <Image source={Images.DrawerMenu} />
+            {/* <Image source={Images.DrawerMenu} /> */}
+            <Ionicons name="menu" size={30} color={COLORS.primary} />
           </TouchableOpacity>
         }
         middleComponent={<Text style={styles.headerTitle}>Help</Text>}

@@ -10,6 +10,8 @@ import {
 import CustomHeader from "../components/CustomHeader";
 import Images from "../constants/Image";
 import CustomSnackbar from "../components/CustomSnackbar";
+import CustomIcon from "../constants/CustomIcon";
+import COLORS from "../constants/COLORS";
 
 const GetPremiumScreen = ({ navigation }) => {
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -78,7 +80,7 @@ const GetPremiumScreen = ({ navigation }) => {
             onPress={() => navigation.goBack()}
             style={{ backgroundColor: "#FFFFFF", borderRadius: 30, padding: 5 }}
           >
-            <Image source={Images.back} />
+                <CustomIcon name="chevron-back" size={26} color={COLORS.primary} type="Ionicons" />
           </TouchableOpacity>
         }
         middleComponent={

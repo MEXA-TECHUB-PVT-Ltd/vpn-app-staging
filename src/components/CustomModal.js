@@ -1,8 +1,9 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Image, TouchableWithoutFeedback } from 'react-native';
 import Icon from 'react-native-vector-icons/EvilIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const CustomModal = ({ visible, onClose, icon, image, title, description, onConfirm, onCancel }) => {
+const CustomModal = ({ visible, onClose, icon, Logout, image, title, description, onConfirm, onCancel }) => {
     return (
         <Modal
             transparent={true}
@@ -15,6 +16,7 @@ const CustomModal = ({ visible, onClose, icon, image, title, description, onConf
                 <View style={styles.modalContainer}>
                     {/* Icon or Image */}
                     {icon && <Icon name={icon} size={50} color="orange" style={styles.icon} />}
+                    {Logout && <MaterialIcons name={Logout} size={50} color="orange" style={styles.icon} />}
                     {image && <Image source={image} style={styles.image} />}
 
                     {/* Title */}

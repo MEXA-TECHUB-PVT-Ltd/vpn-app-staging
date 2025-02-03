@@ -372,7 +372,7 @@ const SignupScreen = ({navigation}) => {
       <View style={styles.socialLoginContainer}>
         <Text style={styles.orText}>Or sign up with</Text>
         <TouchableOpacity onPress={() => onGoogleButtonPress()}>
-          <Image source={Images.Google} />
+        <Image source={Images.Google} style={{height:40, width:40}} />
         </TouchableOpacity>
       </View>
       <View style={styles.signInContainer}>
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    color: '#FE8C00',
+    color: COLORS.primary,
     fontFamily: 'Poppins-Bold',
     marginBottom: 20,
     textAlign: 'center',
@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   linkText: {
-    color: '#FF9900', // Or whatever color you prefer for the link
+    color: COLORS.primary, // Or whatever color you prefer for the link
     textAlign: 'center',
     fontFamily: 'Poppins-SemiBold',
     paddingTop: 3,
