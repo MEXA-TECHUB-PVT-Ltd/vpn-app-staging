@@ -10,7 +10,8 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import CustomHeader from '../components/CustomHeader';
 import Images from '../constants/Image';
-
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import COLORS from '../constants/COLORS';
 const SettingsScreen = ({navigation}) => {
   const [isNotificationEnabled, setIsNotificationEnabled] =
     React.useState(false);
@@ -24,8 +25,10 @@ const SettingsScreen = ({navigation}) => {
         leftComponent={
           <TouchableOpacity
             onPress={() => navigation.toggleDrawer()}
-            style={{backgroundColor: '#6D6C69', borderRadius: 30, padding: 8}}>
-            <Image source={Images.DrawerMenu} />
+            style={{backgroundColor: '#6D6C69', borderRadius: 30, padding: 5}}>
+            {/* <Image source={Images.DrawerMenu} /> */}
+            <Ionicons name="menu" size={30} color={COLORS.primary} />
+
           </TouchableOpacity>
         }
         middleComponent={
@@ -54,12 +57,12 @@ const SettingsScreen = ({navigation}) => {
           <Icon name="keyboard-arrow-right" size={24} color="#DBD6CE" />
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.settingItem}
           onPress={() => navigation.navigate('TestScreen')}>
           <Text style={styles.settingText}>TestingScreen</Text>
           <Icon name="keyboard-arrow-right" size={24} color="#DBD6CE" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <TouchableOpacity
           style={styles.settingItem}

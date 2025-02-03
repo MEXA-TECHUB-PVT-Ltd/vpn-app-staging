@@ -27,6 +27,10 @@ import firestore from '@react-native-firebase/firestore';
 import CustomSnackbar from '../components/CustomSnackbar';
 import Clipboard from '@react-native-clipboard/clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import COLORS from '../constants/COLORS';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+
 
 const MyAccount = () => {
   const navigation = useNavigation();
@@ -198,8 +202,9 @@ const MyAccount = () => {
           <TouchableOpacity
             // onPress={() => navigation.openDrawer()}
             onPress={() => navigation.toggleDrawer()}
-            style={{backgroundColor: '#6D6C69', borderRadius: 30, padding: 8}}>
-            <Image source={Images.DrawerMenu} />
+            style={{backgroundColor: '#6D6C69', borderRadius: 30, padding: 5}}>
+            {/* <Image source={Images.DrawerMenu} /> */}
+            <Ionicons name="menu" size={30} color={COLORS.primary} />
           </TouchableOpacity>
         }
         middleComponent={<Text style={styles.headerTitle}>My Account</Text>}
@@ -207,7 +212,9 @@ const MyAccount = () => {
           <TouchableOpacity
             style={{backgroundColor: '#6D6C69', borderRadius: 30, padding: 8}}
             onPress={() => navigation.navigate('SettingStackNavigator')}>
-            <Image source={Images.Settings} />
+            {/* <Image source={Images.Settings} /> */}
+            <Ionicons
+                        name="settings" size={22} color="white"/>
           </TouchableOpacity>
         }
       />
@@ -215,7 +222,8 @@ const MyAccount = () => {
       <CustomModal
         visible={modalVisible}
         onClose={closeLogoutModal}
-        image={Images.Logout} // Using the logout image here
+        // image={Images.Logout} // Using the logout image here
+        Logout="logout"
         title="Are you sure to Sign Out?"
         description="" // No description needed
         onConfirm={handleLogout} // Log out when "Yes" is pressed
@@ -241,6 +249,7 @@ const MyAccount = () => {
             onPress={() => refRBSheet.current.open()}
             style={{marginLeft: 6}}>
             <Icon name="edit" size={30} color="white" />
+    
           </TouchableOpacity>
         </View>
       </View>
@@ -254,7 +263,8 @@ const MyAccount = () => {
               <Text style={styles.detailValue}>{vpnData.IP}</Text>
               <TouchableOpacity
                 onPress={() => copyToClipboard(vpnData.IP, 'IP')}>
-                <Image source={Images.Copy} />
+                <Icon name="content-copy" size={18} color="white" />
+                {/* <Image source={Images.Copy} /> */}
               </TouchableOpacity>
             </View>
           </>
@@ -287,13 +297,17 @@ const MyAccount = () => {
           onPress={() =>
             navigation.navigate('MainStackScreen', {screen: 'GetPremiumScreen'})
           }>
-          <Image source={Images.Vector} />
+
+          {/* <Image source={Images.Vector} /> */}
+          <FontAwesome5 name="crown" size={20} color={COLORS.white} />
           <Text style={styles.GetpremiumText}>Go to Premium</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.premiumButton, {backgroundColor: '#FFFFFF33'}]}
           onPress={openLogoutModal}>
-          <Image source={Images.Logout} />
+          {/* <Image source={Images.Logout} /> */}
+          
+          <Icon name="logout" size={20} color='#FF6347' />
           <Text style={styles.logoutText}>Sign Out</Text>
         </TouchableOpacity>
       </View>
@@ -365,12 +379,12 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   headerTitle: {
-    color: 'orange',
+    color: COLORS.primary,
     fontSize: 22,
     fontFamily: 'Poppins-Bold',
   },
   accountUserContainer: {
-    backgroundColor: 'orange',
+    backgroundColor: COLORS.primary,
     borderRadius: 10,
     paddingVertical: 15,
     paddingHorizontal: 20,
@@ -406,7 +420,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
   },
   premiumText: {
-    color: '#FFC107', // Premium yellow color
+    color: COLORS.primary, // Premium yellow color
     fontSize: 14,
     fontFamily: 'Poppins-Bold',
     marginRight: 10,
@@ -483,12 +497,12 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   saveButton: {
-    backgroundColor: 'orange',
+    backgroundColor: COLORS.primary,
     flex: 1,
     marginLeft: 10,
   },
   premiumButton: {
-    backgroundColor: 'orange',
+    backgroundColor: COLORS.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

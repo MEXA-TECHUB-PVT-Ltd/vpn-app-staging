@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import COLORS from '../constants/COLORS';
 
 const Button = ({ title, onPress, disabled = false, style = {}, textStyle = {}, loading = false }) => {
     return (
@@ -7,7 +8,7 @@ const Button = ({ title, onPress, disabled = false, style = {}, textStyle = {}, 
             style={[
                 styles.button,
                 style,
-                { backgroundColor: disabled ? '#888' : 'orange' }
+                { backgroundColor: disabled ? '#888' : COLORS.primary }
             ]}
             onPress={onPress}
             disabled={disabled || loading} // disable button if loading or disabled
@@ -23,7 +24,7 @@ const Button = ({ title, onPress, disabled = false, style = {}, textStyle = {}, 
 
 const styles = StyleSheet.create({
     button: {
-        padding: 15,
+        padding: 12,
         borderRadius: 30,
         alignItems: 'center',
         justifyContent: 'center',

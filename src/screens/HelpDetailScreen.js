@@ -10,6 +10,8 @@ import {
 import CustomHeader from '../components/CustomHeader';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Images from '../constants/Image';
+import CustomIcon from '../constants/CustomIcon';
+import COLORS from '../constants/COLORS';
 
 const HelpDetailScreen = ({route, navigation}) => {
   const {question, answer} = route.params;
@@ -21,7 +23,7 @@ const HelpDetailScreen = ({route, navigation}) => {
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={{backgroundColor: '#6D6C69', borderRadius: 30, padding: 5}}>
-            <Image source={Images.back} />
+        <CustomIcon name="chevron-back" size={26} color={COLORS.primary} type="Ionicons" />
           </TouchableOpacity>
         }
         middleComponent={<Text style={styles.headerTitle}>Help</Text>}

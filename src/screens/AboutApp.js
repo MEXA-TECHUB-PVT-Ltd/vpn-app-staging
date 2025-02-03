@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, Switch,Image } from 'react-na
 
 import CustomHeader from '../components/CustomHeader';
 import Images from '../constants/Image';
+import CustomIcon from '../constants/CustomIcon';
+import COLORS from '../constants/COLORS';
 
 
 
@@ -14,7 +16,7 @@ const AboutApp = ({ navigation }) => {
             <CustomHeader
                 leftComponent={
                     <TouchableOpacity onPress={() => navigation.goBack()} style={{backgroundColor:'#6D6C69', borderRadius:30, padding:5}}>
-                         <Image source={Images.back}/>
+                        <CustomIcon name="chevron-back" size={26} color={COLORS.primary} type="Ionicons" />
                     </TouchableOpacity>
                 }
                 middleComponent={
@@ -43,8 +45,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#1c161b',
-        paddingVertical:10,
-        paddingHorizontal:10
+        paddingVertical: 15,
+    paddingHorizontal: 15,
     },
     headerText: {
         color: 'orange',
@@ -52,7 +54,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Bold',
     },
     content: {
-        paddingHorizontal: 10,
+        paddingHorizontal: 6,
         paddingVertical: 15,
     },
     settingItem: {

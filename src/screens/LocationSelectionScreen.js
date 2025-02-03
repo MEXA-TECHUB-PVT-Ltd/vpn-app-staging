@@ -443,7 +443,7 @@ const LocationSelectionScreen = ({ navigation }) => {
     setLoading(true);
     try {
       const cachedData = await AsyncStorage.getItem('vpnServers');
-      console.log('vpnServers-----', cachedData);
+      // console.log('vpnServers-----', cachedData);
   
       if (cachedData) {
         const parsedServers = JSON.parse(cachedData);
@@ -458,7 +458,7 @@ const LocationSelectionScreen = ({ navigation }) => {
       if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.text();
       const parts = data.split('#');
-      console.log('Fetched data parts:', parts);
+      // console.log('Fetched data parts:', parts);
   
       if (parts.length < 2) throw new Error('Unexpected data format');
   
@@ -468,7 +468,7 @@ const LocationSelectionScreen = ({ navigation }) => {
         skipEmptyLines: true,
         complete: async (results) => {
           const csvList = results.data;
-          console.log('CSV list:', csvList);
+          // console.log('CSV list:', csvList);
   
           const header = csvList[0];
           const servers = csvList.slice(1).map((row) => {
@@ -498,7 +498,7 @@ const LocationSelectionScreen = ({ navigation }) => {
       });
     } catch (error) {
       setLoading(false);
-      console.error('Error fetching VPN servers:', error);
+      console.log('Error fetching VPN servers:', error);
     }
   };
   

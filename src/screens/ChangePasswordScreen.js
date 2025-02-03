@@ -10,6 +10,7 @@ import CustomHeader from '../components/CustomHeader';
 import Images from '../constants/Image';
 import FlashMessages from '../components/FlashMessages';
 import COLORS from '../constants/COLORS';
+import CustomIcon from '../constants/CustomIcon';
 
 const ChangePasswordScreen = ({navigation}) => {
   const [oldPassword, setOldPassword] = useState('');
@@ -173,7 +174,7 @@ const ChangePasswordScreen = ({navigation}) => {
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={{backgroundColor: '#6D6C69', borderRadius: 30, padding: 5}}>
-            <Image source={Images.back} />
+          <CustomIcon name="chevron-back" size={26} color={COLORS.primary} type="Ionicons" />
           </TouchableOpacity>
         }
         middleComponent={

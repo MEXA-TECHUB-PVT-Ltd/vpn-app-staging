@@ -9,7 +9,7 @@ import {
   Modal,
   Animated,
   Easing,
-  FlatList
+  FlatList,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import CustomHeader from '../components/CustomHeader';
@@ -30,6 +30,7 @@ import {
 } from 'react-native-responsive-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   requestSubscription,
@@ -53,8 +54,9 @@ const decodeBase64 = base64String => {
 };
 import Icon from 'react-native-vector-icons/Ionicons';
 import COLORS from '../constants/COLORS';
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 const productId = 'vpn_001_test';
-
 
 const HomeScreen = ({route}) => {
   // const locationselect =  route.params
@@ -181,197 +183,203 @@ const HomeScreen = ({route}) => {
     )}:${String(secs).padStart(2, '0')}`;
   };
 
-// ////////////////////// subscription on 30-1-2025
+  // ////////////////////// subscription on 30-1-2025
 
+  const isfucsed = useIsFocused();
+  const purchaseUpdateSubscription = useRef(null);
+  const purchaseErrorSubscription = useRef(null);
+  const refRBSheet = useRef();
+  const RenewrefRBSheet = useRef();
+  const [RenewmodalVisible, setReNewModalVisible] = useState(false);
+  const [purchasedNumbers, setPurchasedNumbers] = useState([]);
+  const [Stripesubscriptions, setStripeSubscriptions] = useState([]);
+  const [flashMessageData, setFlashMessageData] = useState(null);
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [autoRenewalInfo, setAutoRenewalInfo] = useState(null);
+  const [substatus, setSubscriptionStatus] = useState('');
+  const [SubscriptionStatusMessage, setSubscriptionStatusMessage] =
+    useState('');
+  const [purchasedNumbersWithStatus, setPurchasedNumbersWithStatus] = useState(
+    [],
+  );
+  const [activeProductId, setActiveProductId] = useState(null);
+  useEffect(() => {
+    purchaseUpdateSubscription.current =
+      purchaseUpdatedListener(handlePurchaseUpdate);
+    purchaseErrorSubscription.current =
+      purchaseErrorListener(handlePurchaseError);
 
-const isfucsed = useIsFocused();
-const purchaseUpdateSubscription = useRef(null);
-const purchaseErrorSubscription = useRef(null);
-const refRBSheet = useRef();
-const [purchasedNumbers, setPurchasedNumbers] = useState([]);
-const [Stripesubscriptions, setStripeSubscriptions] = useState([]);
-const [flashMessageData, setFlashMessageData] = useState(null);
-const [subscriptions, setSubscriptions] = useState([]);
-const [autoRenewalInfo, setAutoRenewalInfo] = useState(null);
-const [substatus, setSubscriptionStatus] = useState('');
-const [SubscriptionStatusMessage, setSubscriptionStatusMessage] =
-  useState('');
-const [purchasedNumbersWithStatus, setPurchasedNumbersWithStatus] = useState(
-  [],
-);
-const [activeProductId, setActiveProductId] = useState(null);
-useEffect(() => {
-  purchaseUpdateSubscription.current =
-    purchaseUpdatedListener(handlePurchaseUpdate);
-  purchaseErrorSubscription.current =
-    purchaseErrorListener(handlePurchaseError);
+    return () => {
+      if (purchaseUpdateSubscription.current) {
+        purchaseUpdateSubscription.current.remove();
+        purchaseUpdateSubscription.current = null;
+      }
 
-  return () => {
-    if (purchaseUpdateSubscription.current) {
-      purchaseUpdateSubscription.current.remove();
-      purchaseUpdateSubscription.current = null;
-    }
+      if (purchaseErrorSubscription.current) {
+        purchaseErrorSubscription.current.remove();
+        purchaseErrorSubscription.current = null;
+      }
+    };
+  }, []);
 
-    if (purchaseErrorSubscription.current) {
-      purchaseErrorSubscription.current.remove();
-      purchaseErrorSubscription.current = null;
+  const handlePurchaseError = error => {
+    // console.warn('purchaseErrorListener', error);
+
+    // Check if the error is related to the payment being cancelled
+    if (error.code === 'E_USER_CANCELLED') {
+      showMessage({
+        message: 'Payment Cancelled',
+        type: 'info',
+      });
+    } else if (error.code === 'E_USER_ERROR') {
+      showMessage({
+        message: 'An error occurred during the purchase',
+        type: 'danger',
+      });
+    } else {
+      showMessage({
+        message: 'Something went wrong with the purchase.',
+        type: 'danger',
+      });
     }
   };
-}, []);
 
-const handlePurchaseError = error => {
-  // console.warn('purchaseErrorListener', error);
+  const handlePurchaseUpdate = async purchase => {
+    const receipt = purchase.transactionReceipt;
+  };
 
-  // Check if the error is related to the payment being cancelled
-  if (error.code === 'E_USER_CANCELLED') {
-     showMessage({
-          message: 'Payment Cancelled',
-          type: 'info',
+  useEffect(() => {
+    const initializeIAP = async () => {
+      try {
+        await initConnection();
+        console.log('IAP initialized');
+
+        // Fetch available subscriptions
+        const availableSubscriptions = await getSubscriptions({
+          skus: [productId],
         });
-  
-  } else if (error.code === 'E_USER_ERROR') {
-    showMessage({
-      message: 'An error occurred during the purchase',
-      type: 'danger',
-    });
-   
-  } else {
-    showMessage({
-      message: 'Something went wrong with the purchase.',
-      type: 'danger',
-    });
-   
-  }
-};
+        const subscriptionList = [];
 
-const handlePurchaseUpdate = async purchase => {
-  const receipt = purchase.transactionReceipt;
-};
+        // Map through subscriptions and extract offer details
+        availableSubscriptions.forEach(subscription => {
+          subscription.subscriptionOfferDetails.forEach(offerDetail => {
+            const pricingPhases =
+              offerDetail.pricingPhases?.pricingPhaseList?.map(phase => ({
+                billingCycleCount: phase.billingCycleCount,
+                billingPeriod: phase.billingPeriod,
+                formattedPrice: phase.formattedPrice,
+                priceAmountMicros: phase.priceAmountMicros,
+                priceCurrencyCode: phase.priceCurrencyCode,
+                recurrenceMode: phase.recurrenceMode,
+              }));
 
-useEffect(() => {
-  const initializeIAP = async () => {
-    try {
-      await initConnection();
-      console.log('IAP initialized');
-
-      // Fetch available subscriptions
-      const availableSubscriptions = await getSubscriptions({
-        skus: [productId],
-      });
-      const subscriptionList = [];
-
-      // Map through subscriptions and extract offer details
-      availableSubscriptions.forEach(subscription => {
-        subscription.subscriptionOfferDetails.forEach(offerDetail => {
-          const pricingPhases =
-            offerDetail.pricingPhases?.pricingPhaseList?.map(phase => ({
-              billingCycleCount: phase.billingCycleCount,
-              billingPeriod: phase.billingPeriod,
-              formattedPrice: phase.formattedPrice,
-              priceAmountMicros: phase.priceAmountMicros,
-              priceCurrencyCode: phase.priceCurrencyCode,
-              recurrenceMode: phase.recurrenceMode,
-            }));
-
-          // Push subscription details with offer tokens and pricing phases into the list
-          subscriptionList.push({
-            title: subscription.title,
-            description: subscription.description,
-            productId: subscription.productId,
-            offerToken: offerDetail.offerToken,
-            basePlanId: offerDetail.basePlanId,
-            pricingPhases: pricingPhases || [],
+            // Push subscription details with offer tokens and pricing phases into the list
+            subscriptionList.push({
+              title: subscription.title,
+              description: subscription.description,
+              productId: subscription.productId,
+              offerToken: offerDetail.offerToken,
+              basePlanId: offerDetail.basePlanId,
+              pricingPhases: pricingPhases || [],
+            });
           });
         });
-      });
 
-      setSubscriptions(subscriptionList); // Update state with extracted subscription data
-    } catch (error) {
-      console.error('Error initializing IAP:', error);
-    }
-  };
+        setSubscriptions(subscriptionList); // Update state with extracted subscription data
+      } catch (error) {
+        console.log('Error initializing IAP:', error);
+      }
+    };
 
-  initializeIAP();
-}, []);
+    initializeIAP();
+  }, []);
 
-const restoreSubscription = async () => {
-  try {
-    const availablePurchases = await getAvailablePurchases();
-    console.log('Available purchases:', availablePurchases);
+  const restoreSubscription = async () => {
+    try {
+      const availablePurchases = await getAvailablePurchases();
+      console.log('Available purchases:', availablePurchases);
 
-    const activeSubscription = availablePurchases.find(purchase =>
-      purchase.productId.includes('subscription'),
-    );
-
-    if (activeSubscription) {
-      console.log('Restored subscription:', activeSubscription.productId);
-      setSubscriptionStatus('active');
-      setActiveProductId(activeSubscription.productId);
-      setSubscriptionStatusMessage('Subscription restored');
-    } else {
-      console.log('No subscription to restore.');
-      setSubscriptionStatusMessage('No subscription to restore.');
-      // Alert.alert('Info', 'No subscription to restore.');
-    }
-  } catch (error) {
-    console.log('Error restoring subscription:', error);
-    // showMessage({
-    //   message: 'Failed to restore subscription. Please try again later.',
-    //   type: 'Info',
-    // });
-  }
-};
-const checkSubscriptionStatus = useCallback(async () => {
-  try {
-    const activeSubscriptions = await getAvailablePurchases();
-    // console.log('Active subscriptions:', activeSubscriptions);
-
-    // Check if any subscription is active
-    const activeSubscription = activeSubscriptions.find(
-      subscription => subscription.productId === productId,
-    );
-
-    if (activeSubscription) {
-      console.log(
-        'Subscription is active for product:',
-        activeSubscription.productId,
+      const activeSubscription = availablePurchases.find(purchase =>
+        purchase.productId.includes('subscription'),
       );
 
-      // Extract auto-renewal details
-      const autoRenewing = activeSubscription.autoRenewingAndroid;
-      const expiryTime = activeSubscription.expirationDateAndroid;
-
-      setAutoRenewalInfo({
-        autoRenewing,
-        expiryDate: new Date(Number(expiryTime)),
-      });
-
-      setSubscriptionStatus('active');
-      setActiveProductId(activeSubscription.productId);
-    } else {
-      // console.log('No active subscription found');
-      setSubscriptionStatus('inactive');
-      setAutoRenewalInfo(null);
-
-      // Optionally update subscription status in Firestore
-      // await updateSubscriptionStatusInFirestore('inactive');
+      if (activeSubscription) {
+        console.log('Restored subscription:', activeSubscription.productId);
+        setSubscriptionStatus('active');
+        setActiveProductId(activeSubscription.productId);
+        setSubscriptionStatusMessage('Subscription restored');
+      } else {
+        console.log('No subscription to restore.');
+        setSubscriptionStatusMessage('No subscription to restore.');
+        // Alert.alert('Info', 'No subscription to restore.');
+      }
+    } catch (error) {
+      console.log('Error restoring subscription:', error);
+      // showMessage({
+      //   message: 'Failed to restore subscription. Please try again later.',
+      //   type: 'Info',
+      // });
     }
-  } catch (error) {
-    // console.error('Error checking subscription status:', error);
-    console.log('Error checking subscription status:', error);
-  }
-}, [productId]); // Dependency array ensures the callback updates when `productId` changes
+  };
+  const checkSubscriptionStatus = useCallback(async () => {
+    try {
+      const activeSubscriptions = await getAvailablePurchases();
+      // console.log('Active subscriptions:', activeSubscriptions);
 
-useEffect(() => {
-  checkSubscriptionStatus();
-}, [isfucsed, productId]);
+      // Check if any subscription is active
+      const activeSubscription = activeSubscriptions.find(
+        subscription => subscription.productId === productId,
+      );
+
+      if (activeSubscription) {
+        console.log(
+          'Subscription is active for product:',
+          activeSubscription.productId,
+        );
+
+        // Extract auto-renewal details
+        const autoRenewing = activeSubscription.autoRenewingAndroid;
+        const expiryTime = activeSubscription.expirationDateAndroid;
+
+        setAutoRenewalInfo({
+          autoRenewing,
+          expiryDate: new Date(Number(expiryTime)),
+        });
+
+        setSubscriptionStatus('active');
+        setActiveProductId(activeSubscription.productId);
+      } else {
+        // console.log('No active subscription found');
+        setSubscriptionStatus('inactive');
+        setAutoRenewalInfo(null);
+
+        // Optionally update subscription status in Firestore
+        // await updateSubscriptionStatusInFirestore('inactive');
+      }
+    } catch (error) {
+      // console.error('Error checking subscription status:', error);
+      console.log('Error checking subscription status:', error);
+    }
+  }, [productId]); // Dependency array ensures the callback updates when `productId` changes
+
+  useEffect(() => {
+    checkSubscriptionStatus();
+  }, [isfucsed, productId]);
+
+  const calculateNextPaymentDate = () => {
+    // Example: Add one month to the current date for the next payment date
+    const nextPaymentDate = new Date();
+    nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
+    return nextPaymentDate;
+  };
+
   const handleBuySubscription = async offerToken => {
+    setReNewModalVisible(false);
     console.log('selectedOfferToken', offerToken);
     if (!offerToken) {
       console.log('Offer token is required for purchasing the subscription');
       return;
     }
-
     try {
       await requestSubscription({
         sku: productId,
@@ -401,6 +409,7 @@ useEffect(() => {
           subscriptions: firestore.FieldValue.arrayUnion(subscriptionDetails),
         });
         setSubscriptionStatus('active');
+        setReNewModalVisible(false);
         // Close the sheet first
         refRBSheet.current.close();
 
@@ -424,7 +433,7 @@ useEffect(() => {
       }
     } catch (error) {
       console.log('Purchase Error:', error);
-
+      setReNewModalVisible(false);
       // Close the sheet first
       refRBSheet.current.close();
       setSubscriptionStatusMessage('');
@@ -436,16 +445,15 @@ useEffect(() => {
         )
       ) {
         showMessage({
-          message: 'Google is indicating that we have some issue connecting to payment.',
+          message:
+            'Google is indicating that we have some issue connecting to payment.',
           type: 'danger',
         });
-      
       } else if (error.message.includes('You already own this item.')) {
         showMessage({
           message: 'You already own this item.',
           type: 'info',
         });
-       
       } else if (error.message.includes('Payment is Cancelled.')) {
         showMessage({
           message: 'Payment Cancelled.',
@@ -461,7 +469,7 @@ useEffect(() => {
   };
 
   const renderSubscriptionPlan = ({item}) => {
-    console.log('subscription------------', item)
+    console.log('subscription------------', item);
     const isSubscribed = item.productId === activeProductId;
 
     return (
@@ -538,6 +546,12 @@ useEffect(() => {
   // };
 
   const startVpn = async () => {
+    if (substatus === 'active') {
+      setReNewModalVisible(false);
+    } else {
+      setReNewModalVisible(true);
+      return; // Exit function if substatus is not active
+    }
     if (!selectedVpn) return;
     // Use configdatafile directly if available, otherwise decode the Base64 encoded config data
     const config = selectedVpn.configdatafile
@@ -561,6 +575,12 @@ useEffect(() => {
   };
 
   const handleConnectionToggle = () => {
+    if (substatus === 'active') {
+      setReNewModalVisible(false);
+    } else {
+      setReNewModalVisible(true);
+      return; // Exit function if substatus is not active
+    }
     if (isConnected) {
       // Show the modal to confirm disconnection
       setModalVisible(true);
@@ -608,7 +628,7 @@ useEffect(() => {
       await AsyncStorage.setItem('selectedVpndata', JSON.stringify(vpnData));
       console.log('VPN data stored successfully');
     } catch (error) {
-      console.error('Error storing VPN data', error);
+      console.log('Error storing VPN data', error);
     }
   };
 
@@ -620,7 +640,7 @@ useEffect(() => {
         console.log('VPN data retrieved successfully');
       }
     } catch (error) {
-      console.error('Error retrieving VPN data', error);
+      console.log('Error retrieving VPN data', error);
     }
   };
 
@@ -689,7 +709,7 @@ useEffect(() => {
         region: 'Ibaraki',
         location: 'JP',
         signalStrength: 4,
-        Speed:'158790109',
+        Speed: '158790109',
         CountryShort: 'JP',
         IP: '219.100.37.178',
       });
@@ -700,7 +720,7 @@ useEffect(() => {
         location: 'JP',
         signalStrength: 43,
         CountryShort: 'JP',
-        Speed:'158790109',
+        Speed: '158790109',
         IP: '219.100.37.178',
         configdatafile: configData, // Using the fetched config data
       });
@@ -965,6 +985,11 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
 
   return (
     <View style={styles.container}>
+      <SubscriptionModal
+        isVisible={RenewmodalVisible}
+        refRBSheet={refRBSheet}
+        onClose={() => setReNewModalVisible(false)}
+      />
       <ImageBackground source={Images.Maps} style={styles.drawerBackground}>
         <View
           style={{
@@ -982,41 +1007,55 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
                   style={{
                     backgroundColor: '#6D6C69',
                     borderRadius: 30,
-                    padding: 8,
+                    padding: 5,
                   }}>
-                  <Image source={Images.DrawerMenu} />
+                  {/* <Image source={Images.DrawerMenu} /> */}
+                  
+                  <Icon name="menu" size={30} color={COLORS.primary} />
                 </TouchableOpacity>
               }
               middleComponent={
                 <Image source={Images.Applogo} style={styles.logo} />
               }
               subscriptionComponent={
-               <>
-                {substatus !== 'active' && (
-            <TouchableOpacity
-              onPress={() => refRBSheet.current.open()}
-              style={{ backgroundColor:'white',borderRadius: 50,  padding: 8,}}>
-              <View
-                style={{
-          
-                  
-                }}>
-                <MaterialIcons name="workspace-premium" size={24} color="red" />
-              </View>
-            </TouchableOpacity>
-          )}
-          </>
+                <>
+                  {substatus !== 'active' && (
+                    <TouchableOpacity
+                      onPress={() => refRBSheet.current.open()}
+                      style={{
+                        backgroundColor: 'white',
+                        borderRadius: 50,
+                        padding: 8,
+                      }}>
+                      <View style={{}}>
+                        <MaterialIcons
+                          name="workspace-premium"
+                          size={24}
+                          color={COLORS.red}
+                        />
+                      </View>
+                    </TouchableOpacity>
+                  )}
+                </>
               }
               rightComponent={
                 <TouchableOpacity
+                  style={{
+                    backgroundColor: 'white',
+                    width: wp(12),
+                    height: wp(12), // Use wp instead of hp to keep it equal
+                    borderRadius: wp(6), // Half of width/height to make it a circle
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
                   onPress={() => navigation.navigate('GetPremiumScreen')}>
-                  <Image source={Images.tajIcon} />
+                  {/* <Image source={Images.tajIcon} /> */}
+                  <FontAwesome5 name="crown" size={20} color={COLORS.primary} />
                 </TouchableOpacity>
               }
             />
-             
           </View>
-        
+
           {/* Conditionally render content based on whether location is selected */}
           {location ? (
             <View style={styles.locationContainer}>
@@ -1147,46 +1186,47 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
         </View>
 
         <View style={{alignItems: 'center'}}>
-        <RBSheet
-          ref={refRBSheet}
-          height={450}
-          closeOnDragDown
-          closeOnPressMask
-          customStyles={{
-            wrapper: styles.sheetWrapper,
-            container: styles.sheetContainer,
-            draggableIcon: styles.draggableIcon,
-          }}>
-          <View style={styles.RBcontainer}>
-            <Text style={styles.title}>Available Plans</Text>
-            <View style={styles.RBInnercontainer}>
-              <TouchableOpacity
-                onPress={restoreSubscription}
-                style={styles.restoreButton}>
-                <Text style={styles.restoreButtonText}>
-                  Restore Subscription
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  refRBSheet.current.close(), setSubscriptionStatusMessage('');
-                }}>
-                <Icon name="close-circle" size={24} color={COLORS.red} />
-              </TouchableOpacity>
+          <RBSheet
+            ref={refRBSheet}
+            height={450}
+            closeOnDragDown
+            closeOnPressMask
+            customStyles={{
+              wrapper: styles.sheetWrapper,
+              container: styles.sheetContainer,
+              draggableIcon: styles.draggableIcon,
+            }}>
+            <View style={styles.RBcontainer}>
+              <Text style={styles.title}>Available Plans</Text>
+              <View style={styles.RBInnercontainer}>
+                <TouchableOpacity
+                  onPress={restoreSubscription}
+                  style={styles.restoreButton}>
+                  <Text style={styles.restoreButtonText}>
+                    Restore Subscription
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    refRBSheet.current.close(),
+                      setSubscriptionStatusMessage('');
+                  }}>
+                  <Icon name="close-circle" size={24} color={COLORS.red} />
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-          <Text style={[styles.pricingText, {paddingBottom: 4}]}>
-            {SubscriptionStatusMessage}
-          </Text>
+            <Text style={[styles.pricingText, {paddingBottom: 4}]}>
+              {SubscriptionStatusMessage}
+            </Text>
 
-          <FlatList
-            data={subscriptions}
-            renderItem={renderSubscriptionPlan}
-            keyExtractor={(item, index) => index.toString()}
-            showsVerticalScrollIndicator={false}
-          />
-        </RBSheet>
-      </View>
+            <FlatList
+              data={subscriptions}
+              renderItem={renderSubscriptionPlan}
+              keyExtractor={(item, index) => index.toString()}
+              showsVerticalScrollIndicator={false}
+            />
+          </RBSheet>
+        </View>
 
         <CustomSnackbar
           message="Success"
@@ -1198,7 +1238,32 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
     </View>
   );
 };
-
+const SubscriptionModal = ({isVisible, refRBSheet, onClose}) => {
+  return (
+    <Modal visible={isVisible} transparent={true} animationType="fade">
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Subscription</Text>
+          <Text style={styles.modalMessage}>
+            To use this feature app services subscribe to app.
+          </Text>
+          <TouchableOpacity
+            style={styles.ReNewbutton}
+            onPress={() => {
+              refRBSheet.current.open();
+              onClose;
+            }}>
+            {/* <TouchableOpacity style={styles.button} onPress={onClose}> */}
+            <Text style={styles.buttonText}>Renew Now</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.secondaryButton} onPress={onClose}>
+            <Text style={styles.secondaryButtonText}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -1297,25 +1362,25 @@ const styles = StyleSheet.create({
   },
   outerAnimatedCircle: {
     position: 'absolute',
-    width: wp('54.5%'), 
+    width: wp('54.5%'),
     height: hp('27%'),
     borderRadius: wp('26%'),
-    borderWidth: wp('5%'), 
-    borderColor: 'rgba(255, 255, 255, 0.3)', 
+    borderWidth: wp('5%'),
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   innerAnimatedCircle: {
     position: 'absolute',
-    width: wp('44%'), 
-    height: hp('21.5%'), 
-    borderRadius: wp('22%'), 
-    borderWidth: wp('5%'), 
+    width: wp('44%'),
+    height: hp('21.5%'),
+    borderRadius: wp('22%'),
+    borderWidth: wp('5%'),
     borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   selectLocationPrompt: {
     alignItems: 'center',
   },
   selectLocationText: {
-    color: 'orange',
+    color: COLORS.primary,
     fontSize: 16,
     fontFamily: 'Poppins-Regular',
   },
@@ -1338,14 +1403,12 @@ const styles = StyleSheet.create({
   },
 
   timer: {
-    color: 'orange',
+    color: COLORS.primary,
     fontSize: 32,
     fontFamily: 'Poppins-SemiBold',
   },
 
-
-
-  // subcirption style start hai 
+  // subcirption style start hai
   RBcontainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1360,11 +1423,11 @@ const styles = StyleSheet.create({
   },
   title: {
     color: COLORS.black,
-    fontFamily: 'Montserrat-Bold',
+    fontFamily: 'Poppins-Bold',
     fontSize: 16,
   },
   restoreButton: {
-    backgroundColor: COLORS.darkblue,
+    backgroundColor: COLORS.primary,
     paddingVertical: 2,
     paddingHorizontal: 10,
     borderRadius: 5,
@@ -1373,7 +1436,7 @@ const styles = StyleSheet.create({
   restoreButtonText: {
     fontSize: 13,
     color: COLORS.white,
-    fontFamily: 'Montserrat-SemiBold',
+    fontFamily: 'Poppins-SemiBold',
     textAlign: 'center',
   },
   sheetWrapper: {
@@ -1399,7 +1462,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   subscriptionTitle: {
-    fontFamily: 'Montserrat-Bold',
+    fontFamily: 'Poppins-Bold',
     fontSize: 16,
     color: '#0D47A1',
     marginBottom: 5,
@@ -1408,12 +1471,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#1E88E5',
     marginBottom: 10,
-    fontFamily: 'Montserrat-SemiBold',
+    fontFamily: 'Poppins-SemiBold',
   },
   subscriptionDetail: {
     color: '#1565C0',
     marginBottom: 5,
-    fontFamily: 'Montserrat-Medium',
+    fontFamily: 'Poppins-Medium',
   },
   pricingDetails: {
     backgroundColor: '#BBDEFB',
@@ -1422,17 +1485,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   pricingTitle: {
-    fontFamily: 'Montserrat-Bold',
+    fontFamily: 'Poppins-Bold',
     fontSize: 14,
     color: '#0D47A1',
   },
   pricingText: {
     color: '#1565C0',
-    fontFamily: 'Montserrat-Regular',
+    fontFamily: 'Poppins-Regular',
   },
   button: {
     marginTop: 15,
-    backgroundColor: COLORS.darkblue,
+    backgroundColor: COLORS.primary,
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',
@@ -1440,12 +1503,69 @@ const styles = StyleSheet.create({
   buttonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontFamily: 'Montserrat-Bold',
+    fontFamily: 'Poppins-Bold',
   },
   subscribedText: {
     marginTop: 15,
     color: 'green',
-    fontFamily: 'Montserrat-Bold',
+    fontFamily: 'Poppins-Bold',
+  },
+
+  /////////////////
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    marginBottom: 10,
+    color: COLORS.greyDark,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Bold',
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: COLORS.greyDark,
+    textAlign: 'center',
+    marginBottom: 20,
+    fontFamily: 'Poppins-Regular',
+  },
+  ReNewbutton: {
+    backgroundColor: COLORS.darkblue,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    marginBottom: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+
+  secondaryButton: {
+    backgroundColor: 'transparent',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    width: '80%',
+    alignItems: 'center',
+  },
+  secondaryButtonText: {
+    color: COLORS.darkblue,
+    fontSize: 16,
+    fontFamily: 'Poppins-SemiBold',
   },
 });
 

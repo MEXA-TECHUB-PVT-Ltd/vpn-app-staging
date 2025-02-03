@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import CustomHeader from '../components/CustomHeader';
 import Images from '../constants/Image';
+import COLORS from '../constants/COLORS';
+import CustomIcon from '../constants/CustomIcon';
 
 const TermServices = ({navigation}) => {
   return (
@@ -20,7 +22,8 @@ const TermServices = ({navigation}) => {
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={{backgroundColor: '#6D6C69', borderRadius: 30, padding: 5}}>
-            <Image source={Images.back} />
+            {/* <Image source={Images.back} /> */}
+            <CustomIcon name="chevron-back" size={26} color={COLORS.primary} type="Ionicons" />
           </TouchableOpacity>
         }
         middleComponent={
@@ -32,6 +35,7 @@ const TermServices = ({navigation}) => {
       />
       <ScrollView
         style={styles.content}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}>
         <Text style={styles.heading}>1. Acceptance of Terms</Text>
         <Text style={styles.text}>

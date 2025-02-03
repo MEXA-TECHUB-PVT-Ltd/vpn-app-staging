@@ -11,6 +11,8 @@ import {
 import CustomHeader from '../components/CustomHeader';
 import Images from '../constants/Image';
 import {ScrollView} from 'react-native-gesture-handler';
+import CustomIcon from '../constants/CustomIcon';
+import COLORS from '../constants/COLORS';
 
 const PrivacyPolicy = ({navigation}) => {
   return (
@@ -20,7 +22,8 @@ const PrivacyPolicy = ({navigation}) => {
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={{backgroundColor: '#6D6C69', borderRadius: 30, padding: 5}}>
-            <Image source={Images.back} />
+            {/* <Image source={Images.back} /> */}
+            <CustomIcon name="chevron-back" size={26} color={COLORS.primary} type="Ionicons" />
           </TouchableOpacity>
         }
         middleComponent={
@@ -33,6 +36,7 @@ const PrivacyPolicy = ({navigation}) => {
 
       <ScrollView
         style={styles.content}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}>
         <Text style={styles.heading}>1. Introduction</Text>
         <Text style={styles.text}>
