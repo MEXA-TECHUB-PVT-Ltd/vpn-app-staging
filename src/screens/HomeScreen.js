@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Modal,
   Animated,
   Easing,
+  FlatList
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import CustomHeader from '../components/CustomHeader';
@@ -28,11 +29,32 @@ import {
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {
+  requestSubscription,
+  getSubscriptions,
+  initConnection,
+  purchaseUpdatedListener,
+  purchaseErrorListener,
+  endConnection,
+  requestPurchase,
+  getProducts,
+  finishTransaction,
+  getPurchaseHistory,
+  getAvailablePurchases,
+} from 'react-native-iap';
+import RBSheet from 'react-native-raw-bottom-sheet';
+import {useIsFocused} from '@react-navigation/native';
+import {showMessage} from 'react-native-flash-message';
 const decodeBase64 = base64String => {
   const buffer = Buffer.from(base64String, 'base64');
   return buffer.toString('utf-8');
 };
+import Icon from 'react-native-vector-icons/Ionicons';
+import COLORS from '../constants/COLORS';
+const productId = 'vpn_001_test';
+
 
 const HomeScreen = ({route}) => {
   // const locationselect =  route.params
@@ -159,6 +181,338 @@ const HomeScreen = ({route}) => {
     )}:${String(secs).padStart(2, '0')}`;
   };
 
+// ////////////////////// subscription on 30-1-2025
+
+
+const isfucsed = useIsFocused();
+const purchaseUpdateSubscription = useRef(null);
+const purchaseErrorSubscription = useRef(null);
+const refRBSheet = useRef();
+const [purchasedNumbers, setPurchasedNumbers] = useState([]);
+const [Stripesubscriptions, setStripeSubscriptions] = useState([]);
+const [flashMessageData, setFlashMessageData] = useState(null);
+const [subscriptions, setSubscriptions] = useState([]);
+const [autoRenewalInfo, setAutoRenewalInfo] = useState(null);
+const [substatus, setSubscriptionStatus] = useState('');
+const [SubscriptionStatusMessage, setSubscriptionStatusMessage] =
+  useState('');
+const [purchasedNumbersWithStatus, setPurchasedNumbersWithStatus] = useState(
+  [],
+);
+const [activeProductId, setActiveProductId] = useState(null);
+useEffect(() => {
+  purchaseUpdateSubscription.current =
+    purchaseUpdatedListener(handlePurchaseUpdate);
+  purchaseErrorSubscription.current =
+    purchaseErrorListener(handlePurchaseError);
+
+  return () => {
+    if (purchaseUpdateSubscription.current) {
+      purchaseUpdateSubscription.current.remove();
+      purchaseUpdateSubscription.current = null;
+    }
+
+    if (purchaseErrorSubscription.current) {
+      purchaseErrorSubscription.current.remove();
+      purchaseErrorSubscription.current = null;
+    }
+  };
+}, []);
+
+const handlePurchaseError = error => {
+  // console.warn('purchaseErrorListener', error);
+
+  // Check if the error is related to the payment being cancelled
+  if (error.code === 'E_USER_CANCELLED') {
+     showMessage({
+          message: 'Payment Cancelled',
+          type: 'info',
+        });
+  
+  } else if (error.code === 'E_USER_ERROR') {
+    showMessage({
+      message: 'An error occurred during the purchase',
+      type: 'danger',
+    });
+   
+  } else {
+    showMessage({
+      message: 'Something went wrong with the purchase.',
+      type: 'danger',
+    });
+   
+  }
+};
+
+const handlePurchaseUpdate = async purchase => {
+  const receipt = purchase.transactionReceipt;
+};
+
+useEffect(() => {
+  const initializeIAP = async () => {
+    try {
+      await initConnection();
+      console.log('IAP initialized');
+
+      // Fetch available subscriptions
+      const availableSubscriptions = await getSubscriptions({
+        skus: [productId],
+      });
+      const subscriptionList = [];
+
+      // Map through subscriptions and extract offer details
+      availableSubscriptions.forEach(subscription => {
+        subscription.subscriptionOfferDetails.forEach(offerDetail => {
+          const pricingPhases =
+            offerDetail.pricingPhases?.pricingPhaseList?.map(phase => ({
+              billingCycleCount: phase.billingCycleCount,
+              billingPeriod: phase.billingPeriod,
+              formattedPrice: phase.formattedPrice,
+              priceAmountMicros: phase.priceAmountMicros,
+              priceCurrencyCode: phase.priceCurrencyCode,
+              recurrenceMode: phase.recurrenceMode,
+            }));
+
+          // Push subscription details with offer tokens and pricing phases into the list
+          subscriptionList.push({
+            title: subscription.title,
+            description: subscription.description,
+            productId: subscription.productId,
+            offerToken: offerDetail.offerToken,
+            basePlanId: offerDetail.basePlanId,
+            pricingPhases: pricingPhases || [],
+          });
+        });
+      });
+
+      setSubscriptions(subscriptionList); // Update state with extracted subscription data
+    } catch (error) {
+      console.error('Error initializing IAP:', error);
+    }
+  };
+
+  initializeIAP();
+}, []);
+
+const restoreSubscription = async () => {
+  try {
+    const availablePurchases = await getAvailablePurchases();
+    console.log('Available purchases:', availablePurchases);
+
+    const activeSubscription = availablePurchases.find(purchase =>
+      purchase.productId.includes('subscription'),
+    );
+
+    if (activeSubscription) {
+      console.log('Restored subscription:', activeSubscription.productId);
+      setSubscriptionStatus('active');
+      setActiveProductId(activeSubscription.productId);
+      setSubscriptionStatusMessage('Subscription restored');
+    } else {
+      console.log('No subscription to restore.');
+      setSubscriptionStatusMessage('No subscription to restore.');
+      // Alert.alert('Info', 'No subscription to restore.');
+    }
+  } catch (error) {
+    console.log('Error restoring subscription:', error);
+    // showMessage({
+    //   message: 'Failed to restore subscription. Please try again later.',
+    //   type: 'Info',
+    // });
+  }
+};
+const checkSubscriptionStatus = useCallback(async () => {
+  try {
+    const activeSubscriptions = await getAvailablePurchases();
+    // console.log('Active subscriptions:', activeSubscriptions);
+
+    // Check if any subscription is active
+    const activeSubscription = activeSubscriptions.find(
+      subscription => subscription.productId === productId,
+    );
+
+    if (activeSubscription) {
+      console.log(
+        'Subscription is active for product:',
+        activeSubscription.productId,
+      );
+
+      // Extract auto-renewal details
+      const autoRenewing = activeSubscription.autoRenewingAndroid;
+      const expiryTime = activeSubscription.expirationDateAndroid;
+
+      setAutoRenewalInfo({
+        autoRenewing,
+        expiryDate: new Date(Number(expiryTime)),
+      });
+
+      setSubscriptionStatus('active');
+      setActiveProductId(activeSubscription.productId);
+    } else {
+      // console.log('No active subscription found');
+      setSubscriptionStatus('inactive');
+      setAutoRenewalInfo(null);
+
+      // Optionally update subscription status in Firestore
+      // await updateSubscriptionStatusInFirestore('inactive');
+    }
+  } catch (error) {
+    // console.error('Error checking subscription status:', error);
+    console.log('Error checking subscription status:', error);
+  }
+}, [productId]); // Dependency array ensures the callback updates when `productId` changes
+
+useEffect(() => {
+  checkSubscriptionStatus();
+}, [isfucsed, productId]);
+  const handleBuySubscription = async offerToken => {
+    console.log('selectedOfferToken', offerToken);
+    if (!offerToken) {
+      console.log('Offer token is required for purchasing the subscription');
+      return;
+    }
+
+    try {
+      await requestSubscription({
+        sku: productId,
+        subscriptionOffers: [
+          {
+            sku: productId,
+            offerToken: offerToken,
+          },
+        ],
+      });
+
+      // Step 2: Get the current user
+      const user = auth().currentUser;
+      if (user) {
+        // Step 3: Prepare subscription details
+        const subscriptionDetails = {
+          productId,
+          userId: user.uid,
+          startDate: new Date(),
+          nextPaymentDate: calculateNextPaymentDate(),
+          endDate: calculateNextPaymentDate(),
+          status: 'active',
+        };
+        // Step 4: Save subscription details to Firestore
+        const userDocRef = firestore().collection('users').doc(user.uid);
+        await userDocRef.update({
+          subscriptions: firestore.FieldValue.arrayUnion(subscriptionDetails),
+        });
+        setSubscriptionStatus('active');
+        // Close the sheet first
+        refRBSheet.current.close();
+
+        showMessage({
+          message: 'Subscription purchased successfully.',
+          type: 'success',
+        });
+        setSubscriptionStatusMessage('');
+        // Show success message after 3 seconds
+        // setTimeout(() => {
+        //   setFlashMessageData({
+        //     message: 'Success',
+        //     description: 'Subscription purchased successfully.',
+        //     type: 'success',
+        //     icon: 'check-circle',
+        //     textColor: COLORS.white,
+        //     backgroundColor: COLORS.successGreen,
+        //   });
+        // }, 1000);
+        console.log('Subscription purchase initiated');
+      }
+    } catch (error) {
+      console.log('Purchase Error:', error);
+
+      // Close the sheet first
+      refRBSheet.current.close();
+      setSubscriptionStatusMessage('');
+      // Error Handling
+
+      if (
+        error.message.includes(
+          'Google is indicating that we have some issue connecting to payment.',
+        )
+      ) {
+        showMessage({
+          message: 'Google is indicating that we have some issue connecting to payment.',
+          type: 'danger',
+        });
+      
+      } else if (error.message.includes('You already own this item.')) {
+        showMessage({
+          message: 'You already own this item.',
+          type: 'info',
+        });
+       
+      } else if (error.message.includes('Payment is Cancelled.')) {
+        showMessage({
+          message: 'Payment Cancelled.',
+          type: 'info',
+        });
+      } else {
+        showMessage({
+          message: error.message || 'Something went wrong.',
+          type: 'danger',
+        });
+      }
+    }
+  };
+
+  const renderSubscriptionPlan = ({item}) => {
+    console.log('subscription------------', item)
+    const isSubscribed = item.productId === activeProductId;
+
+    return (
+      <View style={styles.subscriptionPlan}>
+        <Text style={styles.subscriptionTitle}>{item.title}</Text>
+        <Text style={styles.subscriptionDescription}>{item.description}</Text>
+        <Text style={styles.subscriptionDetail}>
+          Base Plan ID: {item.basePlanId}
+        </Text>
+
+        {item.pricingPhases?.length > 0 && (
+          <View style={styles.pricingDetails}>
+            <Text style={styles.pricingTitle}>Pricing Details:</Text>
+            {item.pricingPhases.map((phase, index) => (
+              <View key={index} style={{marginTop: 5}}>
+                <Text style={styles.pricingText}>
+                  Billing Period: {phase.billingPeriod}
+                </Text>
+                <Text style={styles.pricingText}>
+                  Formatted Price: {phase.formattedPrice}
+                </Text>
+                <Text style={styles.pricingText}>
+                  Currency: {phase.priceCurrencyCode}
+                </Text>
+                <Text style={styles.pricingText}>
+                  Billing Cycles: {phase.billingCycleCount || 'Unlimited'}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {isSubscribed ? (
+          <>
+            <Text style={styles.subscribedText}>Already Subscribed</Text>
+            <TouchableOpacity
+              onPress={() => handleBuySubscription(item.offerToken)}
+              style={styles.button}>
+              <Text style={styles.buttonText}>Cancel Subscription</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <TouchableOpacity
+            onPress={() => handleBuySubscription(item.offerToken)}
+            style={styles.button}>
+            <Text style={styles.buttonText}>Subscribe</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  };
   // ye final and working modal hai
   // const startVpn = async () => {
   //   if (selectedVpn == null) return;
@@ -636,6 +990,23 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
               middleComponent={
                 <Image source={Images.Applogo} style={styles.logo} />
               }
+              subscriptionComponent={
+               <>
+                {substatus !== 'active' && (
+            <TouchableOpacity
+              onPress={() => refRBSheet.current.open()}
+              style={{ backgroundColor:'white',borderRadius: 50,  padding: 8,}}>
+              <View
+                style={{
+          
+                  
+                }}>
+                <MaterialIcons name="workspace-premium" size={24} color="red" />
+              </View>
+            </TouchableOpacity>
+          )}
+          </>
+              }
               rightComponent={
                 <TouchableOpacity
                   onPress={() => navigation.navigate('GetPremiumScreen')}>
@@ -643,7 +1014,9 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
                 </TouchableOpacity>
               }
             />
+             
           </View>
+        
           {/* Conditionally render content based on whether location is selected */}
           {location ? (
             <View style={styles.locationContainer}>
@@ -772,6 +1145,48 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
             )}
           </ImageBackground>
         </View>
+
+        <View style={{alignItems: 'center'}}>
+        <RBSheet
+          ref={refRBSheet}
+          height={450}
+          closeOnDragDown
+          closeOnPressMask
+          customStyles={{
+            wrapper: styles.sheetWrapper,
+            container: styles.sheetContainer,
+            draggableIcon: styles.draggableIcon,
+          }}>
+          <View style={styles.RBcontainer}>
+            <Text style={styles.title}>Available Plans</Text>
+            <View style={styles.RBInnercontainer}>
+              <TouchableOpacity
+                onPress={restoreSubscription}
+                style={styles.restoreButton}>
+                <Text style={styles.restoreButtonText}>
+                  Restore Subscription
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  refRBSheet.current.close(), setSubscriptionStatusMessage('');
+                }}>
+                <Icon name="close-circle" size={24} color={COLORS.red} />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <Text style={[styles.pricingText, {paddingBottom: 4}]}>
+            {SubscriptionStatusMessage}
+          </Text>
+
+          <FlatList
+            data={subscriptions}
+            renderItem={renderSubscriptionPlan}
+            keyExtractor={(item, index) => index.toString()}
+            showsVerticalScrollIndicator={false}
+          />
+        </RBSheet>
+      </View>
 
         <CustomSnackbar
           message="Success"
@@ -926,6 +1341,111 @@ const styles = StyleSheet.create({
     color: 'orange',
     fontSize: 32,
     fontFamily: 'Poppins-SemiBold',
+  },
+
+
+
+  // subcirption style start hai 
+  RBcontainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 15,
+    paddingBottom: 3,
+  },
+  RBInnercontainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  title: {
+    color: COLORS.black,
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 16,
+  },
+  restoreButton: {
+    backgroundColor: COLORS.darkblue,
+    paddingVertical: 2,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    marginRight: 5,
+  },
+  restoreButtonText: {
+    fontSize: 13,
+    color: COLORS.white,
+    fontFamily: 'Montserrat-SemiBold',
+    textAlign: 'center',
+  },
+  sheetWrapper: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  sheetContainer: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
+  },
+  draggableIcon: {
+    backgroundColor: '#000',
+  },
+  subscriptionPlan: {
+    padding: 20,
+    marginVertical: 10,
+    borderRadius: 10,
+    backgroundColor: '#E3F2FD',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  subscriptionTitle: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 16,
+    color: '#0D47A1',
+    marginBottom: 5,
+  },
+  subscriptionDescription: {
+    fontSize: 14,
+    color: '#1E88E5',
+    marginBottom: 10,
+    fontFamily: 'Montserrat-SemiBold',
+  },
+  subscriptionDetail: {
+    color: '#1565C0',
+    marginBottom: 5,
+    fontFamily: 'Montserrat-Medium',
+  },
+  pricingDetails: {
+    backgroundColor: '#BBDEFB',
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 10,
+  },
+  pricingTitle: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 14,
+    color: '#0D47A1',
+  },
+  pricingText: {
+    color: '#1565C0',
+    fontFamily: 'Montserrat-Regular',
+  },
+  button: {
+    marginTop: 15,
+    backgroundColor: COLORS.darkblue,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontFamily: 'Montserrat-Bold',
+  },
+  subscribedText: {
+    marginTop: 15,
+    color: 'green',
+    fontFamily: 'Montserrat-Bold',
   },
 });
 
