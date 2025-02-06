@@ -10,6 +10,7 @@ import {
   Animated,
   Easing,
   FlatList,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import CustomHeader from '../components/CustomHeader';
@@ -56,7 +57,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import COLORS from '../constants/COLORS';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-const productId = 'vpn_001_test';
+const productId = ['vpn_002_stealthlinkvpnapp'];
+// const productId = 'vpn_001_test';
 
 const HomeScreen = ({route}) => {
   // const locationselect =  route.params
@@ -255,9 +257,10 @@ const HomeScreen = ({route}) => {
         console.log('IAP initialized');
 
         // Fetch available subscriptions
-        const availableSubscriptions = await getSubscriptions({
-          skus: [productId],
-        });
+        // const availableSubscriptions = await getSubscriptions({
+        //   skus: [productId],
+        // });
+        const availableSubscriptions = await getSubscriptions({ skus: productId });
         const subscriptionList = [];
 
         // Map through subscriptions and extract offer details
@@ -302,6 +305,11 @@ const HomeScreen = ({route}) => {
       const activeSubscription = availablePurchases.find(purchase =>
         purchase.productId.includes('subscription'),
       );
+      // Check for the active subscription
+    // const activeSubscription = availablePurchases.find(purchase =>
+    //   purchase.productId === 'vpn_002_stealthlinkvpnapp', // Replace with your actual product ID
+    // );
+
 
       if (activeSubscription) {
         console.log('Restored subscription:', activeSubscription.productId);
@@ -321,6 +329,77 @@ const HomeScreen = ({route}) => {
       // });
     }
   };
+
+  // const restoreSubscription = async () => {
+  //   try {
+  //     // Step 1: Fetch the current user
+  //     const user = auth().currentUser;
+  //     if (!user) {
+  //       console.log('No user logged in');
+  //       return;
+  //     }
+  
+  //     // Step 2: Get the user document from Firestore
+  //     const userDocRef = firestore().collection('users').doc(user.uid);
+  //     const userDoc = await userDocRef.get();
+  
+  //     if (!userDoc.exists) {
+  //       console.log('User data not found in Firestore');
+  //       return;
+  //     }
+  
+  //     // Step 3: Get the subscriptions array from Firestore
+  //     const subscriptions = userDoc.data()?.subscriptions || [];
+  //     console.log('Subscriptions from Firestore:', subscriptions);
+  
+  //     // Step 4: Look for the subscription with the correct productId and purchaseToken
+  //     let storedPurchaseToken = null;
+  //     let storedSubscription = null;
+  
+  //     // Loop through each subscription and find the one with the productId you're looking for
+  //     for (let sub of subscriptions) {
+  //       if (sub.productId === 'vpn_002_stealthlinkvpnapp') {
+  //         storedPurchaseToken = sub.purchaseToken || null;
+  //         storedSubscription = sub;
+  //         break; // Exit once we find the correct subscription
+  //       }
+  //     }
+  
+  //     if (!storedPurchaseToken) {
+  //       console.log('No purchaseToken found for the productId in Firestore');
+  //       Alert.alert('No subscription found to restore.');
+  //       return;
+  //     }
+  
+  //     console.log('Stored purchaseToken from Firestore:', storedPurchaseToken);
+  
+  //     // Step 5: Get available purchases from the store
+  //     const availablePurchases = await getAvailablePurchases();
+  //     console.log('Available purchases:', availablePurchases);
+  
+  //     // Step 6: Match the stored purchaseToken with the available purchases
+  //     const restoredSubscription = availablePurchases.find(purchase =>
+  //       purchase.purchaseToken === storedPurchaseToken
+  //     );
+  
+  //     if (restoredSubscription) {
+  //       console.log('Restored subscription:', restoredSubscription.productId);
+  //       // Set the restored subscription state
+  //       setSubscriptionStatus('active');
+  //       setActiveProductId(restoredSubscription.productId);
+  //       setSubscriptionStatusMessage('Subscription restored');
+  //       Alert.alert('Subscription Restored', 'Your subscription has been successfully restored!');
+  //     } else {
+  //       console.log('No matching subscription found to restore.');
+  //       setSubscriptionStatusMessage('No matching subscription found to restore.');
+  //       Alert.alert('No Matching Subscription', 'We could not find a matching subscription to restore.');
+  //     }
+  //   } catch (error) {
+  //     console.log('Error restoring subscription:', error);
+  //     Alert.alert('Error', 'Failed to restore subscription. Please try again later.');
+  //   }
+  // };
+  
   const checkSubscriptionStatus = useCallback(async () => {
     try {
       const activeSubscriptions = await getAvailablePurchases();
@@ -347,7 +426,7 @@ const HomeScreen = ({route}) => {
         });
 
         setSubscriptionStatus('active');
-        setActiveProductId(activeSubscription.productId);
+        // setActiveProductId(activeSubscription.productId);
       } else {
         // console.log('No active subscription found');
         setSubscriptionStatus('inactive');
@@ -373,7 +452,8 @@ const HomeScreen = ({route}) => {
     return nextPaymentDate;
   };
 
-  const handleBuySubscription = async offerToken => {
+  // const handleBuySubscription = async offerToken => {
+    const handleBuySubscription = async (productId, offerToken) => {
     setReNewModalVisible(false);
     console.log('selectedOfferToken', offerToken);
     if (!offerToken) {
@@ -381,7 +461,7 @@ const HomeScreen = ({route}) => {
       return;
     }
     try {
-      await requestSubscription({
+      const response =  await requestSubscription({
         sku: productId,
         subscriptionOffers: [
           {
@@ -391,17 +471,27 @@ const HomeScreen = ({route}) => {
         ],
       });
 
+      // Extracting the required fields from the response
+    const subscriptionDetails = response[0];
+    const purchaseToken = subscriptionDetails.purchaseToken;
+    const autoRenewingAndroid = subscriptionDetails.autoRenewingAndroid;
+    const signatureAndroid = subscriptionDetails.signatureAndroid;
+
       // Step 2: Get the current user
       const user = auth().currentUser;
       if (user) {
         // Step 3: Prepare subscription details
         const subscriptionDetails = {
           productId,
+          offerToken,
           userId: user.uid,
           startDate: new Date(),
           nextPaymentDate: calculateNextPaymentDate(),
           endDate: calculateNextPaymentDate(),
           status: 'active',
+          purchaseToken: purchaseToken, // Save the purchaseToken
+          autoRenewingAndroid: autoRenewingAndroid, // Save autoRenewingAndroid
+          signatureAndroid: signatureAndroid, // Save signatureAndroid
         };
         // Step 4: Save subscription details to Firestore
         const userDocRef = firestore().collection('users').doc(user.uid);
@@ -469,16 +559,16 @@ const HomeScreen = ({route}) => {
   };
 
   const renderSubscriptionPlan = ({item}) => {
-    console.log('subscription------------', item);
+    // console.log('subscription------------', item);
     const isSubscribed = item.productId === activeProductId;
 
     return (
       <View style={styles.subscriptionPlan}>
         <Text style={styles.subscriptionTitle}>{item.title}</Text>
         <Text style={styles.subscriptionDescription}>{item.description}</Text>
-        <Text style={styles.subscriptionDetail}>
+        {/* <Text style={styles.subscriptionDetail}>
           Base Plan ID: {item.basePlanId}
-        </Text>
+        </Text> */}
 
         {item.pricingPhases?.length > 0 && (
           <View style={styles.pricingDetails}>
@@ -494,9 +584,9 @@ const HomeScreen = ({route}) => {
                 <Text style={styles.pricingText}>
                   Currency: {phase.priceCurrencyCode}
                 </Text>
-                <Text style={styles.pricingText}>
+                {/* <Text style={styles.pricingText}>
                   Billing Cycles: {phase.billingCycleCount || 'Unlimited'}
-                </Text>
+                </Text> */}
               </View>
             ))}
           </View>
@@ -506,14 +596,18 @@ const HomeScreen = ({route}) => {
           <>
             <Text style={styles.subscribedText}>Already Subscribed</Text>
             <TouchableOpacity
-              onPress={() => handleBuySubscription(item.offerToken)}
+              // onPress={() => handleBuySubscription(item.offerToken)}
+              onPress={() => handleBuySubscription(item.productId, item.offerToken)}
+
               style={styles.button}>
               <Text style={styles.buttonText}>Cancel Subscription</Text>
             </TouchableOpacity>
           </>
         ) : (
           <TouchableOpacity
-            onPress={() => handleBuySubscription(item.offerToken)}
+            // onPress={() => handleBuySubscription(item.offerToken)}
+            onPress={() => handleBuySubscription(item.productId, item.offerToken)}
+
             style={styles.button}>
             <Text style={styles.buttonText}>Subscribe</Text>
           </TouchableOpacity>
@@ -1019,7 +1113,7 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
               }
               subscriptionComponent={
                 <>
-                  {substatus !== 'active' && (
+                  {/* {substatus !== 'active' && ( */}
                     <TouchableOpacity
                       onPress={() => refRBSheet.current.open()}
                       style={{
@@ -1035,7 +1129,7 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
                         />
                       </View>
                     </TouchableOpacity>
-                  )}
+                  {/* )} */}
                 </>
               }
               rightComponent={
@@ -1241,6 +1335,7 @@ M7muBbF0XN7VO80iJPv+PmIZdEIAkpwKfi201YB+BafCIuGxIF50Vg==
 const SubscriptionModal = ({isVisible, refRBSheet, onClose}) => {
   return (
     <Modal visible={isVisible} transparent={true} animationType="fade">
+      <TouchableWithoutFeedback onPress={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Subscription</Text>
@@ -1261,6 +1356,7 @@ const SubscriptionModal = ({isVisible, refRBSheet, onClose}) => {
           </TouchableOpacity>
         </View>
       </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };
@@ -1462,7 +1558,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   subscriptionTitle: {
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 16,
     color: '#0D47A1',
     marginBottom: 5,
@@ -1471,12 +1567,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#1E88E5',
     marginBottom: 10,
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'Poppins-Medium',
   },
   subscriptionDetail: {
     color: '#1565C0',
     marginBottom: 5,
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'Poppins--Regular',
   },
   pricingDetails: {
     backgroundColor: '#BBDEFB',
@@ -1485,7 +1581,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   pricingTitle: {
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 14,
     color: '#0D47A1',
   },
@@ -1503,7 +1599,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Poppins-SemiBold',
   },
   subscribedText: {
     marginTop: 15,
@@ -1535,7 +1631,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: COLORS.greyDark,
     textAlign: 'center',
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Poppins-SemiBold',
   },
   modalMessage: {
     fontSize: 16,
@@ -1545,7 +1641,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
   },
   ReNewbutton: {
-    backgroundColor: COLORS.darkblue,
+    backgroundColor: COLORS.primary,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 25,
@@ -1563,7 +1659,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   secondaryButtonText: {
-    color: COLORS.darkblue,
+    color: COLORS.black,
     fontSize: 16,
     fontFamily: 'Poppins-SemiBold',
   },
